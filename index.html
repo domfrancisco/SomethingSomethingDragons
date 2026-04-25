@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Something Something Dragons</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <canvas id="particleCanvas" aria-hidden="true"></canvas>
+
+  <header class="page-header">
+    <h1>Something Something Dragons</h1>
+    <div class="menu-container">
+      <button id="menuButton" type="button" class="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="menuDropdown">☰</button>
+      <div id="menuDropdown" class="menu-dropdown" hidden>
+        <a href="#" class="menu-item">Info</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-grid">
+    <div class="app-shell primary-shell">
+      <section class="panel flight-card-panel">
+        <div class="flight-card-header">
+          <h2>Flight Card</h2>
+          <p class="flight-card-number">#103</p>
+        </div>
+
+        <div class="flight-grid-scroll">
+          <div class="flight-grid-frame">
+            <div id="flightGrid" class="flight-grid" aria-label="Flight card coordinate grid"></div>
+          </div>
+        </div>
+
+        <div class="flight-card-footer">
+          <p class="flight-card-boom-count">08</p>
+          <span class="boom-icon" aria-hidden="true"></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="app-shell secondary-shell">
+      <section class="panel">
+        <h2>Action Card</h2>
+        <p>Add your own content here. This container adjusts with the first one on all screen sizes.</p>
+        <button type="button" class="counter-btn">Try me</button>
+      </section>
+    </div>
+  </main>
+
+  <script src="./scripts/particles.js" defer></script>
+  <script src="./scripts/menu.js" defer></script>
+  <script src="./scripts/main.js" defer></script>
+</body>
+</html>

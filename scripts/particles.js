@@ -1,6 +1,7 @@
 class Particle {
   constructor(x, y, topLimit) {
     this.x = x;
+    this.startX = x;
     this.y = y;
     this.startY = y;
     this.topLimit = topLimit;
@@ -17,10 +18,13 @@ class Particle {
     this.startSize = this.baseSize * 2;
     this.size = this.startSize;
     this.startOpacity = 0.55 + Math.random() * 0.45;
+    
+    // Wave properties with jitter
+    this.waveAmplitude = (Math.random() * 0.6 + 0.7) * 30; // 21-30 pixel amplitude with jitter
+    this.waveDirection = Math.random() > 0.5 ? 1 : -1; // Random left/right bias
   }
 
   update() {
-    this.x += this.vx;
     this.y += this.vy;
     // Slight deceleration as particle rises
     this.vy *= 0.987;
@@ -28,6 +32,12 @@ class Particle {
 
     const riseRange = Math.max(1, this.startY - this.topLimit);
     const ascentProgress = Math.min(1, Math.max(0, (this.startY - this.y) / riseRange));
+    
+    // Apply sine wave oscillation as particle rises with per-particle amplitude and direction
+    const waveFrequency = 3;
+    const sineOffset = Math.sin(ascentProgress * Math.PI * waveFrequency) * this.waveAmplitude * this.waveDirection;
+    this.x = this.startX + sineOffset + this.vx * ascentProgress * 60;
+    
     this.size = this.startSize * (1 - ascentProgress * 0.75);
   }
 

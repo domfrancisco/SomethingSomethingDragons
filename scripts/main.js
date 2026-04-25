@@ -36,9 +36,9 @@ function renderFlightGrid() {
     });
   });
 
-  fragment.append(createGridLabel("", "grid-corner"));
+  fragment.append(createGridLabel("", "grid-corner grid-corner-bottom"));
   flightCard.columns.forEach((column) => {
-    fragment.append(createGridLabel(column, "grid-coordinate"));
+    fragment.append(createGridLabel(column, "grid-coordinate grid-coordinate-bottom"));
   });
 
   flightGrid.replaceChildren(fragment);

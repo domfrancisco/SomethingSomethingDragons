@@ -14,12 +14,16 @@
   --grid-cell-ideal-size: 0.5in;
   --grid-gap: 0.15rem;
   --grid-coord-size: 2rem;
-  --flight-card-padding-inline: 1.5rem;
+  --grid-bottom-coord-size: 14pt;
+  --flight-card-padding-inline: 8pt;
+  --flight-card-padding-right: calc(2 * var(--flight-card-padding-inline));
+  --flight-card-padding-bottom: calc(2 * var(--flight-card-padding-inline));
   --flight-card-max-width: calc(
     (var(--grid-dimension) * var(--grid-cell-ideal-size)) +
     var(--grid-coord-size) +
     (var(--grid-dimension) * var(--grid-gap)) +
-    (2 * var(--flight-card-padding-inline))
+    var(--flight-card-padding-inline) +
+    var(--flight-card-padding-right)
   );
   --layout-max-content-width: calc(var(--flight-card-max-width) + var(--panel-gap) + var(--right-panel-width));
   --layout-width: min(var(--layout-max-content-width), calc(100vw - (2 * var(--page-gutter))));
@@ -42,7 +46,8 @@ body {
   color: var(--text-main);
   background: linear-gradient(
     to top,
-    #000000 0%,
+    #fff44f 0%,
+    #000000 20%,
     #130b06 33%,
     #2d170f 50%,
     #502317 66%,
@@ -169,10 +174,10 @@ body {
   max-width: 100%;
   min-height: 3.5in;
   justify-self: end;
-  padding-top: 1.5rem;
+  padding-top: 8pt;
   padding-left: 2rem;
   padding-right: 2rem;
-  padding-bottom: 2rem;
+  padding-bottom: 8pt;
 }
 
 .eyebrow {
@@ -205,8 +210,14 @@ h2 {
 }
 
 .flight-card-panel {
-  gap: 0.625rem;
-  padding: 1.5rem var(--flight-card-padding-inline);
+  gap: 0;
+  padding: var(--flight-card-padding-inline) var(--flight-card-padding-right) var(--flight-card-padding-bottom) var(--flight-card-padding-inline);
+  width: calc(
+    ((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap))) +
+    var(--flight-card-padding-inline) +
+    var(--flight-card-padding-right)
+  );
+  max-width: 100%;
 }
 
 .flight-card-header,
@@ -218,7 +229,9 @@ h2 {
 
 .flight-card-header {
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: baseline;
+  padding-bottom: 8pt;
+  width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap)));
 }
 
 .secondary-shell .panel > h2 {
@@ -228,6 +241,8 @@ h2 {
 .flight-card-footer {
   justify-content: flex-end;
   gap: 0.45rem;
+  margin-right: 0;
+  width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap)));
 }
 
 .flight-card-header h2,
@@ -236,9 +251,19 @@ h2 {
   margin: 0;
 }
 
+.flight-card-header h2 {
+  padding-left: calc(var(--grid-coord-size) + var(--grid-gap) - var(--flight-card-padding-inline));
+}
+
+.flight-card-number {
+  margin-left: auto;
+  margin-right: 0;
+}
+
 .flight-card-number,
 .flight-card-boom-count {
   font-size: 10pt;
+  line-height: 1;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--accent);
@@ -246,27 +271,23 @@ h2 {
 
 .flight-grid-scroll {
   overflow: hidden;
+  width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap)));
+  max-width: 100%;
 }
 
 .flight-grid-frame {
   width: min(100%, calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap))));
   max-width: 100%;
-  margin: 0 auto;
 }
 
 .flight-grid {
   --coord-size: var(--grid-coord-size);
-  --ideal-grid-width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--coord-size) + (var(--grid-dimension) * var(--grid-gap)));
-  --render-grid-width: min(100%, var(--ideal-grid-width));
-  --cell-size: min(
-    var(--grid-cell-ideal-size),
-    calc((var(--render-grid-width) - var(--coord-size) - (var(--grid-dimension) * var(--grid-gap))) / var(--grid-dimension))
-  );
   display: grid;
-  grid-template-columns: var(--coord-size) repeat(var(--grid-dimension), var(--cell-size));
-  grid-template-rows: repeat(var(--grid-dimension), var(--cell-size)) var(--coord-size);
+  grid-template-columns: var(--coord-size) repeat(var(--grid-dimension), var(--grid-cell-ideal-size));
+  grid-template-rows: repeat(var(--grid-dimension), var(--grid-cell-ideal-size)) var(--grid-bottom-coord-size);
   gap: var(--grid-gap);
-  width: var(--render-grid-width);
+  width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--coord-size) + (var(--grid-dimension) * var(--grid-gap)));
+  height: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + (var(--grid-dimension) * var(--grid-gap)) + var(--grid-bottom-coord-size));
 }
 
 .grid-corner,
@@ -279,16 +300,30 @@ h2 {
 
 .grid-corner,
 .grid-coordinate {
+  margin: 0;
+  line-height: 1;
   color: var(--text-soft);
   font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
+.grid-coordinate-bottom,
+.grid-corner-bottom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  align-self: end;
+  height: var(--grid-bottom-coord-size);
+  font-size: 10pt;
+  line-height: 1;
+  padding-top: calc(4pt - var(--grid-gap));
+  margin: 0;
+}
+
 .grid-cell {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  width: 0.5in;
+  height: 0.5in;
   background: linear-gradient(180deg, rgba(71, 85, 105, 0.22), rgba(15, 23, 42, 0.65));
   box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.06);
   overflow: hidden;
@@ -422,7 +457,7 @@ input:focus {
   }
 
   .flight-card-panel {
-    padding: 1rem 0;
+    padding: var(--flight-card-padding-inline) var(--flight-card-padding-right) var(--flight-card-padding-bottom) var(--flight-card-padding-inline);
   }
 
   .flight-card-number,

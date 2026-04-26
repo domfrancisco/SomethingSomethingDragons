@@ -6,6 +6,8 @@ const flightCard = {
 };
 
 const flightGrid = document.getElementById("flightGrid");
+const deckButton = document.querySelector(".deck-btn");
+const actionCards = Array.from(document.querySelectorAll(".action-card-shell"));
 
 function createGridLabel(value, className) {
   const label = document.createElement("div");
@@ -63,3 +65,40 @@ function renderFlightGrid() {
 }
 
 renderFlightGrid();
+
+function setActionCardFlipOrder() {
+  const columns = 2;
+
+  actionCards.forEach((card, index) => {
+    const row = Math.floor(index / columns);
+    const column = index % columns;
+    card.style.setProperty("--flip-order", String(row + column));
+  });
+}
+
+function triggerActionCardFlipCascade() {
+  if (!actionCards.length) {
+    return;
+  }
+
+  actionCards.forEach((card) => {
+    card.classList.remove("is-flipping");
+    // Force style recalculation so repeated clicks reliably restart animation.
+    void card.offsetWidth;
+    card.classList.add("is-flipping");
+  });
+}
+
+setActionCardFlipOrder();
+
+actionCards.forEach((card) => {
+  card.addEventListener("animationend", (event) => {
+    if (event.animationName === "action-card-diagonal-flip") {
+      card.classList.remove("is-flipping");
+    }
+  });
+});
+
+if (deckButton) {
+  deckButton.addEventListener("click", triggerActionCardFlipCascade);
+}

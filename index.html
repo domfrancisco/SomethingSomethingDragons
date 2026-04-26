@@ -21,43 +21,118 @@
       <span class="title-chip">Something Something Dragons</span>
     </h1>
     <div class="menu-container">
-      <button id="menuButton" type="button" class="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="menuDropdown">☰</button>
+      <button id="menuButton" type="button" class="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="menuDropdown">
+        <span class="menu-icon" aria-hidden="true"></span>
+      </button>
       <div id="menuDropdown" class="menu-dropdown" hidden>
-        <a href="#" class="menu-item">Info</a>
+        <button type="button" class="menu-item">
+          <span class="menu-item-label" aria-label="Info">
+            <span class="menu-item-space">Info</span>
+            <span class="menu-item-discovery">Info</span>
+          </span>
+        </button>
+        <button type="button" class="menu-item">
+          <span class="menu-item-label" aria-label="Save State">
+            <span class="menu-item-space">Save State</span>
+            <span class="menu-item-discovery">Save State</span>
+          </span>
+        </button>
+        <button type="button" class="menu-item">
+          <span class="menu-item-label" aria-label="Load State">
+            <span class="menu-item-space">Load State</span>
+            <span class="menu-item-discovery">Load State</span>
+          </span>
+        </button>
+        <button type="button" class="menu-item">
+          <span class="menu-item-label" aria-label="Reset">
+            <span class="menu-item-space">Reset</span>
+            <span class="menu-item-discovery">Reset</span>
+          </span>
+        </button>
       </div>
     </div>
   </header>
 
   <main class="main-grid">
-    <div class="app-shell primary-shell">
-      <section class="panel flight-card-panel">
-        <div class="flight-card-header">
-          <h2 class="flight-title" aria-label="Flight Card">
-            <span class="flight-title-block">Flight Card</span>
-            <span class="flight-title-melt">Flight Card</span>
-          </h2>
-          <p class="flight-card-number">#103</p>
-        </div>
+    <div class="cards-panel">
+      <div class="flight-column">
+        <div class="app-shell primary-shell">
+          <section class="panel flight-card-panel">
+            <div class="flight-card-header">
+              <h2 class="flight-title" aria-label="Flight Card">
+                <span class="flight-title-block">Flight Card</span>
+                <span class="flight-title-melt">Flight Card</span>
+              </h2>
+              <p class="flight-card-number">#103</p>
+            </div>
 
-        <div class="flight-grid-scroll">
-          <div class="flight-grid-frame">
-            <div id="flightGrid" class="flight-grid" aria-label="Flight card coordinate grid"></div>
-          </div>
-        </div>
+            <div class="flight-grid-scroll">
+              <div class="flight-grid-frame">
+                <div id="flightGrid" class="flight-grid" aria-label="Flight card coordinate grid"></div>
+              </div>
+            </div>
 
-        <div class="flight-card-footer">
-          <p class="flight-card-boom-count">08</p>
-          <span class="boom-icon" aria-hidden="true"></span>
+            <div class="flight-card-footer">
+              <p class="flight-card-boom-count">08</p>
+              <span class="boom-icon" aria-hidden="true"></span>
+            </div>
+          </section>
         </div>
-      </section>
-    </div>
+        <div class="flight-card-actions">
+          <button type="button" class="deck-btn" aria-label="Deck">
+            <span class="deck-btn-block">Deck</span>
+            <span class="deck-btn-melt">Deck</span>
+          </button>
+        </div>
+      </div>
 
-    <div class="app-shell secondary-shell">
-      <section class="panel">
-        <h2>Action Card</h2>
-        <p>Add your own content here. This container adjusts with the first one on all screen sizes.</p>
-        <button type="button" class="counter-btn">Try me</button>
-      </section>
+      <div class="action-cards-panel" aria-label="Action cards">
+        <article class="app-shell action-card-shell action-card-red">
+          <section class="panel action-card-content">
+            <h2 class="action-title" aria-label="Action 01">
+              <span class="action-title-space">Action 01</span>
+              <span class="action-title-discovery">Action 01</span>
+            </h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc blandit velit et eros suscipit.</p>
+          </section>
+        </article>
+        <article class="app-shell action-card-shell action-card-orange">
+          <section class="panel action-card-content">
+            <h2 class="action-title" aria-label="Action 02">
+              <span class="action-title-space">Action 02</span>
+              <span class="action-title-discovery">Action 02</span>
+            </h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc blandit velit et eros suscipit.</p>
+          </section>
+        </article>
+        <article class="app-shell action-card-shell action-card-green">
+          <section class="panel action-card-content">
+            <h2 class="action-title" aria-label="Action 03">
+              <span class="action-title-space">Action 03</span>
+              <span class="action-title-discovery">Action 03</span>
+            </h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc blandit velit et eros suscipit.</p>
+          </section>
+        </article>
+        <article class="app-shell action-card-shell action-card-blue">
+          <section class="panel action-card-content">
+            <h2 class="action-title" aria-label="Action 04">
+              <span class="action-title-space">Action 04</span>
+              <span class="action-title-discovery">Action 04</span>
+            </h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc blandit velit et eros suscipit.</p>
+          </section>
+        </article>
+        <article class="app-shell action-card-shell action-card-pink">
+          <section class="panel action-card-content">
+            <h2 class="action-title" aria-label="Action 05">
+              <span class="action-title-space">Action 05</span>
+              <span class="action-title-discovery">Action 05</span>
+            </h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc blandit velit et eros suscipit.</p>
+          </section>
+        </article>
+      </div>
     </div>
   </main>
 

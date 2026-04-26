@@ -13,11 +13,16 @@ class Particle {
     this.life = 1;
     this.decay = Math.random() * 0.005 + 0.0035;
 
-    // Start particles at 2x their base size, then shrink as they rise.
+    // Start particles at 4x their base size, then shrink as they rise.
     this.baseSize = Math.random() * 2 + 1.2;
-    this.startSize = this.baseSize * 2;
+    this.startSize = this.baseSize * 4;
     this.size = this.startSize;
     this.startOpacity = 0.55 + Math.random() * 0.45;
+
+    // Irregular ember silhouette configuration (static per particle).
+    this.shapePoints = Math.floor(Math.random() * 4) + 6; // 6-9 points
+    this.shapeJitter = 0.22 + Math.random() * 0.2; // 22%-42% radius jitter
+    this.shapeRotation = Math.random() * Math.PI * 2;
     
     // Wave properties with jitter
     this.waveAmplitude = (Math.random() * 0.6 + 0.7) * 30; // 21-30 pixel amplitude with jitter
@@ -38,7 +43,8 @@ class Particle {
     const sineOffset = Math.sin(ascentProgress * Math.PI * waveFrequency) * this.waveAmplitude * this.waveDirection;
     this.x = this.startX + sineOffset + this.vx * ascentProgress * 60;
     
-    this.size = this.startSize * (1 - ascentProgress * 0.75);
+    // Faster shrink keeps the end-size point consistent after increasing start size.
+    this.size = this.startSize * (1 - ascentProgress * 0.875);
   }
 
   getAscentProgress() {
@@ -81,7 +87,23 @@ class Particle {
     ctx.globalAlpha = Math.max(0, (0.2 + this.life * 0.8) * (1 - progress * 0.75) * this.startOpacity);
     ctx.fillStyle = this.getGradientColor(progress);
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+
+    for (let i = 0; i < this.shapePoints; i++) {
+      const t = i / this.shapePoints;
+      const angle = this.shapeRotation + t * Math.PI * 2;
+      const jitter = 1 + (Math.random() * 2 - 1) * this.shapeJitter;
+      const radius = Math.max(0.4, this.size * jitter);
+      const px = this.x + Math.cos(angle) * radius;
+      const py = this.y + Math.sin(angle) * radius;
+
+      if (i === 0) {
+        ctx.moveTo(px, py);
+      } else {
+        ctx.lineTo(px, py);
+      }
+    }
+
+    ctx.closePath();
     ctx.fill();
     ctx.globalAlpha = 1;
   }
@@ -93,7 +115,7 @@ class ParticleSystem {
     this.ctx = canvas.getContext("2d");
     this.particles = [];
     this.emissionRate = 108;
-    this.fireHeight = 0; // top point where fire stops (now 75% up)
+    this.fireHeight = 0; // top point where fire stops
 
     this.resizeCanvas();
     this.seedInitialState();
@@ -105,7 +127,7 @@ class ParticleSystem {
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    this.fireHeight = 0; // Doubled again: fire now reaches the full screen height
+    this.fireHeight = this.canvas.height * (2 / 3); // Limit effect to bottom third of screen
   }
 
   emitParticles() {

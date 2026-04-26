@@ -10,7 +10,25 @@ const flightGrid = document.getElementById("flightGrid");
 function createGridLabel(value, className) {
   const label = document.createElement("div");
   label.className = className;
-  label.textContent = value;
+
+  if (className.includes("grid-coordinate") && value) {
+    label.setAttribute("aria-label", value);
+
+    const underlay = document.createElement("span");
+    underlay.className = "grid-coordinate-space";
+    underlay.textContent = value;
+    underlay.setAttribute("aria-hidden", "true");
+
+    const overlay = document.createElement("span");
+    overlay.className = "grid-coordinate-discovery";
+    overlay.textContent = value;
+    overlay.setAttribute("aria-hidden", "true");
+
+    label.append(underlay, overlay);
+  } else {
+    label.textContent = value;
+  }
+
   return label;
 }
 

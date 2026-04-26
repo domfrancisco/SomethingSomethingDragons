@@ -15,9 +15,10 @@
   --grid-gap: 0.15rem;
   --grid-coord-size: 2rem;
   --grid-bottom-coord-size: 14pt;
+  --flight-grid-safe-edge: 2px;
   --flight-card-padding-inline: 8pt;
   --flight-card-padding-right: calc(2 * var(--flight-card-padding-inline));
-  --flight-card-padding-bottom: calc(2 * var(--flight-card-padding-inline));
+  --flight-card-padding-bottom: var(--flight-card-padding-inline);
   --flight-card-max-width: calc(
     (var(--grid-dimension) * var(--grid-cell-ideal-size)) +
     var(--grid-coord-size) +
@@ -85,6 +86,56 @@ body {
 .page-header h1 {
   margin: 0;
   font-size: 24pt;
+}
+
+.layered-title {
+  position: relative;
+  display: inline-block;
+  font-size: 36pt;
+  font-weight: 400;
+  line-height: 1;
+  margin: 0;
+  /* Height is determined by the first layer; others are stacked absolutely */
+}
+
+.layered-title span {
+  display: block;
+  white-space: nowrap;
+  font-size: 36pt;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* Layer 1 (back): block — brown */
+.layered-title .title-block {
+  position: relative;
+  font-family: "cc-frostbite-block", sans-serif;
+  color: #6b3a1f;
+}
+
+/* Layer 2: melt — black */
+.layered-title .title-melt {
+  position: absolute;
+  inset: 0;
+  font-family: "cc-frostbite-melt", sans-serif;
+  color: #222631;
+}
+
+/* Layer 3: freeze — dark red */
+.layered-title .title-freeze {
+  position: absolute;
+  inset: 0;
+  font-family: "cc-frostbite-freeze", sans-serif;
+  color: #ae7c43;
+}
+
+/* Layer 4 (front): chip — light orange */
+.layered-title .title-chip {
+  position: absolute;
+  inset: 0;
+  font-family: "cc-frostbite-chip", sans-serif;
+  color: #ad3f25;
 }
 
 .menu-container {
@@ -252,7 +303,37 @@ h2 {
 }
 
 .flight-card-header h2 {
-  padding-left: calc(var(--grid-coord-size) + var(--grid-gap) - var(--flight-card-padding-inline));
+  padding-left: var(--grid-coord-size);
+}
+
+.flight-title {
+  position: relative;
+  display: inline-block;
+  font-size: 24pt;
+  line-height: 1;
+}
+
+.flight-title span {
+  display: block;
+  white-space: nowrap;
+  font-size: inherit;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+}
+
+.flight-title .flight-title-block {
+  position: relative;
+  font-family: "cc-frostbite-block", sans-serif;
+  color: #ffffff;
+}
+
+.flight-title .flight-title-melt {
+  position: absolute;
+  top: 0;
+  left: var(--grid-coord-size);
+  font-family: "cc-frostbite-melt", sans-serif;
+  color: #222631;
 }
 
 .flight-card-number {
@@ -265,13 +346,14 @@ h2 {
   font-size: 10pt;
   line-height: 1;
   font-weight: 700;
+  font-family: "discovery", sans-serif;
   letter-spacing: 0.08em;
-  color: var(--accent);
+  color: #ffffff;
 }
 
 .flight-grid-scroll {
   overflow: hidden;
-  width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap)));
+  width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap)) + var(--flight-grid-safe-edge));
   max-width: 100%;
 }
 
@@ -302,10 +384,38 @@ h2 {
 .grid-coordinate {
   margin: 0;
   line-height: 1;
-  color: var(--text-soft);
   font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.grid-coordinate {
+  position: relative;
+  color: transparent;
+}
+
+.grid-coordinate-space,
+.grid-coordinate-discovery {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  font-size: inherit;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: inherit;
+  white-space: nowrap;
+}
+
+.grid-coordinate-space {
+  font-family: "discovery-space", sans-serif;
+  color: #222631;
+}
+
+.grid-coordinate-discovery {
+  font-family: "discovery", sans-serif;
+  color: #ffffff;
 }
 
 .grid-coordinate-bottom,

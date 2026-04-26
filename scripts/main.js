@@ -1,8 +1,8 @@
 const flightCard = {
   cardNumber: 103,
   boomCount: 8,
-  columns: "ABCDEF".split(""),
-  rows: Array.from({ length: 6 }, (_, index) => index + 1),
+  columns: "ABCDE".split(""),
+  rows: Array.from({ length: 5 }, (_, index) => index + 1),
 };
 
 const flightGrid = document.getElementById("flightGrid");

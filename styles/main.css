@@ -299,7 +299,7 @@ body {
   align-items: flex-start;
   width: min(var(--flight-card-max-width), 100%);
   max-width: 100%;
-  flex: 0 1 var(--flight-card-max-width);
+  flex: 0 0 auto;
 }
 
 .app-shell {
@@ -317,14 +317,10 @@ body {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.26) 0%,
-    rgba(214, 228, 255, 0.13) 28%,
-    rgba(136, 165, 220, 0.08) 52%,
-    rgba(32, 46, 78, 0.22) 74%,
-    rgba(12, 18, 36, 0.36) 100%
-  );
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 .action-cards-panel {
@@ -438,13 +434,88 @@ h2 {
 
 .flight-card-panel {
   gap: 0;
-  padding: var(--flight-card-padding-inline) var(--flight-card-padding-right) var(--flight-card-padding-bottom) var(--flight-card-padding-inline);
-  width: calc(
-    ((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap))) +
-    var(--flight-card-padding-inline) +
-    var(--flight-card-padding-right)
-  );
+  padding: 0;
+  width: min(var(--flight-card-max-width), 100%);
   max-width: 100%;
+}
+
+.flight-cards-stack {
+  position: relative;
+  display: grid;
+  width: min(var(--flight-card-max-width), 100%);
+  max-width: 100%;
+}
+
+.flight-card-container {
+  position: relative;
+  grid-area: 1 / 1;
+  --stack-offset: 0px;
+  --stack-offset-x: 0px;
+  width: 100%;
+  max-width: 100%;
+  padding: var(--flight-card-padding-inline) var(--flight-card-padding-right) var(--flight-card-padding-bottom) var(--flight-card-padding-inline);
+  opacity: 1;
+  transform: translate(var(--stack-offset-x), var(--stack-offset));
+  transition: opacity 380ms ease, transform 380ms ease;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(214, 228, 255, 0.13) 28%,
+    rgba(136, 165, 220, 0.08) 52%,
+    rgba(32, 46, 78, 0.22) 74%,
+    rgba(12, 18, 36, 0.36) 100%
+  );
+  -webkit-backdrop-filter: blur(0.5px);
+  backdrop-filter: blur(0.5px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.flight-card-container:nth-child(1) {
+  --stack-offset: 0px;
+  --stack-offset-x: 0px;
+  z-index: 5;
+}
+
+.flight-card-container:nth-child(2) {
+  --stack-offset: 2px;
+  --stack-offset-x: 1px;
+  z-index: 4;
+}
+
+.flight-card-container:nth-child(3) {
+  --stack-offset: 4px;
+  --stack-offset-x: 2px;
+  z-index: 3;
+}
+
+.flight-card-container:nth-child(4) {
+  --stack-offset: 6px;
+  --stack-offset-x: 3px;
+  z-index: 2;
+}
+
+.flight-card-container:nth-child(5) {
+  --stack-offset: 8px;
+  --stack-offset-x: 4px;
+  z-index: 1;
+}
+
+.flight-card-container.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(var(--stack-offset-x), var(--stack-offset)) scale(0.95);
+}
+
+.flight-card-container.is-flying {
+  pointer-events: none;
+  animation: flight-card-fly-away 520ms cubic-bezier(0.2, 0.72, 0.12, 1) forwards;
+  transform-origin: center center;
 }
 
 .flight-card-header,
@@ -549,6 +620,67 @@ h2 {
 
 .flight-card-actions {
   margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.fly-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.65);
+  color: transparent;
+  cursor: pointer;
+  padding: 0.5rem 1.2rem;
+  min-width: 8.5rem;
+  width: 8.5rem;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.fly-btn span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  white-space: nowrap;
+  line-height: 1;
+  font-size: 12pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.fly-btn-space {
+  font-family: "discovery-space", sans-serif;
+  color: #0f2d4d;
+}
+
+.fly-btn-discovery {
+  font-family: "discovery", sans-serif;
+  color: #e0f2fe;
+  pointer-events: none;
+  transform: translate(1px, 1px);
+}
+
+.fly-btn:hover {
+  border-color: rgba(34, 211, 238, 0.8);
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 55%, #0e7490 100%);
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.25), 0 10px 24px rgba(34, 211, 238, 0.25);
+  transform: translateY(-1px);
+}
+
+.fly-btn:focus-visible {
+  border-color: rgba(34, 211, 238, 0.9);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.35), 0 0 0 6px rgba(245, 158, 11, 0.15);
+  outline: none;
+}
+
+.fly-btn:active {
+  transform: translateY(0);
 }
 
 .deck-btn {
@@ -568,22 +700,24 @@ h2 {
   display: block;
   white-space: nowrap;
   line-height: 1;
-  font-size: 18pt;
-  font-weight: 400;
+  font-size: 12pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.deck-btn-block {
+.deck-btn-space {
   position: relative;
-  font-family: "cc-frostbite-block", sans-serif;
-  color: #ffffff;
+  font-family: "discovery-space", sans-serif;
+  color: #1b2f2a;
 }
 
-.deck-btn-melt {
+.deck-btn-discovery {
   position: absolute;
   top: 0.5rem;
   left: 0.9rem;
-  font-family: "cc-frostbite-melt", sans-serif;
-  color: #222631;
+  font-family: "discovery", sans-serif;
+  color: #f4f7f1;
   pointer-events: none;
 }
 
@@ -617,6 +751,8 @@ h2 {
   font-family: "discovery", sans-serif;
   letter-spacing: 0.08em;
   color: #ffffff;
+  -webkit-text-stroke: 1px #222631;
+  paint-order: stroke fill;
 }
 
 .flight-grid-scroll {
@@ -700,8 +836,8 @@ h2 {
 }
 
 .grid-cell {
-  width: 0.5in;
-  height: 0.5in;
+  width: var(--grid-cell-ideal-size);
+  height: var(--grid-cell-ideal-size);
   background: transparent;
   border-radius: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.8);
@@ -794,6 +930,216 @@ input:focus {
   transform: translateY(0);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Deck Indicator                                                              */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.deck-indicator-shell {
+  width: 100%;
+  max-width: var(--action-card-max-width);
+  aspect-ratio: auto;
+  padding: 8px;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.deck-indicator-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0.3rem;
+  gap: 0.3rem;
+}
+
+.deck-stacks {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 72px;
+  gap: 0.3rem;
+  margin-bottom: 0.2rem;
+  order: 1;
+}
+
+.deck-stack,
+.discard-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.stack-visual {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  min-height: 0.5rem;
+  transition: min-height 380ms ease;
+}
+
+.card-rect {
+  width: 80%;
+  height: 0.3rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 1px;
+  position: relative;
+  transition: transform 380ms ease, opacity 380ms ease, margin 380ms ease;
+  margin-top: -2px;
+  opacity: 0.85;
+}
+
+.card-rect:nth-child(1) {
+  opacity: 1;
+  transform: translateX(0) translateY(0);
+}
+
+.card-rect:nth-child(2) {
+  transform: translateX(-1px) translateY(2px);
+}
+
+.card-rect:nth-child(3) {
+  transform: translateX(-2px) translateY(4px);
+}
+
+.card-rect:nth-child(4) {
+  transform: translateX(-3px) translateY(6px);
+}
+
+.card-rect:nth-child(5) {
+  transform: translateX(-4px) translateY(8px);
+}
+
+.card-rect:nth-child(6) {
+  transform: translateX(-5px) translateY(10px);
+}
+
+.card-rect:nth-child(7) {
+  transform: translateX(-6px) translateY(12px);
+}
+
+.card-rect:nth-child(8) {
+  transform: translateX(-7px) translateY(14px);
+}
+
+.card-rect:nth-child(9) {
+  transform: translateX(-8px) translateY(16px);
+}
+
+.card-rect:nth-child(10) {
+  transform: translateX(-9px) translateY(18px);
+}
+
+.card-rect:nth-child(11) {
+  transform: translateX(-10px) translateY(20px);
+}
+
+.card-rect:nth-child(12) {
+  transform: translateX(-11px) translateY(22px);
+}
+
+.card-rect:nth-child(13) {
+  transform: translateX(-12px) translateY(24px);
+}
+
+.card-rect:nth-child(14) {
+  transform: translateX(-13px) translateY(26px);
+}
+
+.card-rect:nth-child(15) {
+  transform: translateX(-14px) translateY(28px);
+}
+
+.card-rect:nth-child(16) {
+  transform: translateX(-15px) translateY(30px);
+}
+
+.card-rect:nth-child(17) {
+  transform: translateX(-16px) translateY(32px);
+}
+
+.card-rect:nth-child(18) {
+  transform: translateX(-17px) translateY(34px);
+}
+
+.card-rect:nth-child(19) {
+  transform: translateX(-18px) translateY(36px);
+}
+
+.card-rect:nth-child(20) {
+  transform: translateX(-19px) translateY(38px);
+}
+
+.card-rect:nth-child(21) {
+  transform: translateX(-20px) translateY(40px);
+}
+
+.card-rect:nth-child(22) {
+  transform: translateX(-21px) translateY(42px);
+}
+
+.card-rect:nth-child(23) {
+  transform: translateX(-22px) translateY(44px);
+}
+
+.card-rect:nth-child(24) {
+  transform: translateX(-23px) translateY(46px);
+}
+
+.card-rect:nth-child(25) {
+  transform: translateX(-24px) translateY(48px);
+}
+
+.card-rect:nth-child(26) {
+  transform: translateX(-25px) translateY(50px);
+}
+
+.card-rect:nth-child(27) {
+  transform: translateX(-26px) translateY(52px);
+}
+
+.card-rect:nth-child(28) {
+  transform: translateX(-27px) translateY(54px);
+}
+
+.card-rect:nth-child(29) {
+  transform: translateX(-28px) translateY(56px);
+}
+
+.card-rect:nth-child(30) {
+  transform: translateX(-29px) translateY(58px);
+}
+
+.deck-counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 0.3rem;
+  min-height: 1rem;
+  order: -1;
+}
+
+.counter-text {
+  font-family: "discovery", sans-serif;
+  font-size: 14pt;
+  font-weight: 400;
+  color: #f4f7f1;
+  letter-spacing: 0.05em;
+}
+
 @keyframes reveal {
   from {
     opacity: 0;
@@ -814,6 +1160,21 @@ input:focus {
   }
   100% {
     transform: perspective(900px) rotate3d(1, 1, 0, 360deg);
+  }
+}
+
+@keyframes flight-card-fly-away {
+  0% {
+    opacity: 1;
+    transform: translate(var(--stack-offset-x), var(--stack-offset)) scale(1) rotateX(0deg) rotateZ(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(calc(var(--stack-offset-x) + 6px), calc(var(--stack-offset) - 10px)) scale(1.08) rotateX(-4deg) rotateZ(0.6deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--stack-offset-x) + 30px), calc(var(--stack-offset) - 44px)) scale(1.34) rotateX(-9deg) rotateZ(1.6deg);
   }
 }
 
@@ -860,7 +1221,7 @@ input:focus {
   }
 
   .flight-card-panel {
-    padding: var(--flight-card-padding-inline) var(--flight-card-padding-right) var(--flight-card-padding-bottom) var(--flight-card-padding-inline);
+    padding: 0;
   }
 
   .flight-card-number,

@@ -58,30 +58,108 @@
       <div class="flight-column">
         <div class="app-shell primary-shell">
           <section class="panel flight-card-panel">
-            <div class="flight-card-header">
-              <h2 class="flight-title" aria-label="Flight Card">
-                <span class="flight-title-block">Flight Card</span>
-                <span class="flight-title-melt">Flight Card</span>
-              </h2>
-              <p class="flight-card-number">#103</p>
-            </div>
-
-            <div class="flight-grid-scroll">
-              <div class="flight-grid-frame">
-                <div id="flightGrid" class="flight-grid" aria-label="Flight card coordinate grid"></div>
+            <div class="flight-cards-stack">
+              <div class="flight-card-container" data-card-index="0">
+                <div class="flight-card-header">
+                  <h2 class="flight-title" aria-label="Flight Card">
+                    <span class="flight-title-block">Flight Card</span>
+                    <span class="flight-title-melt">Flight Card</span>
+                  </h2>
+                  <p class="flight-card-number">#001</p>
+                </div>
+                <div class="flight-grid-scroll">
+                  <div class="flight-grid-frame">
+                    <div class="flight-grid" aria-label="Flight card coordinate grid"></div>
+                  </div>
+                </div>
+                <div class="flight-card-footer">
+                  <p class="flight-card-boom-count">03</p>
+                  <span class="boom-icon" aria-hidden="true"></span>
+                </div>
               </div>
-            </div>
-
-            <div class="flight-card-footer">
-              <p class="flight-card-boom-count">08</p>
-              <span class="boom-icon" aria-hidden="true"></span>
+              <div class="flight-card-container" data-card-index="1">
+                <div class="flight-card-header">
+                  <h2 class="flight-title" aria-label="Flight Card">
+                    <span class="flight-title-block">Flight Card</span>
+                    <span class="flight-title-melt">Flight Card</span>
+                  </h2>
+                  <p class="flight-card-number">#002</p>
+                </div>
+                <div class="flight-grid-scroll">
+                  <div class="flight-grid-frame">
+                    <div class="flight-grid" aria-label="Flight card coordinate grid"></div>
+                  </div>
+                </div>
+                <div class="flight-card-footer">
+                  <p class="flight-card-boom-count">03</p>
+                  <span class="boom-icon" aria-hidden="true"></span>
+                </div>
+              </div>
+              <div class="flight-card-container" data-card-index="2">
+                <div class="flight-card-header">
+                  <h2 class="flight-title" aria-label="Flight Card">
+                    <span class="flight-title-block">Flight Card</span>
+                    <span class="flight-title-melt">Flight Card</span>
+                  </h2>
+                  <p class="flight-card-number">#003</p>
+                </div>
+                <div class="flight-grid-scroll">
+                  <div class="flight-grid-frame">
+                    <div class="flight-grid" aria-label="Flight card coordinate grid"></div>
+                  </div>
+                </div>
+                <div class="flight-card-footer">
+                  <p class="flight-card-boom-count">03</p>
+                  <span class="boom-icon" aria-hidden="true"></span>
+                </div>
+              </div>
+              <div class="flight-card-container" data-card-index="3">
+                <div class="flight-card-header">
+                  <h2 class="flight-title" aria-label="Flight Card">
+                    <span class="flight-title-block">Flight Card</span>
+                    <span class="flight-title-melt">Flight Card</span>
+                  </h2>
+                  <p class="flight-card-number">#004</p>
+                </div>
+                <div class="flight-grid-scroll">
+                  <div class="flight-grid-frame">
+                    <div class="flight-grid" aria-label="Flight card coordinate grid"></div>
+                  </div>
+                </div>
+                <div class="flight-card-footer">
+                  <p class="flight-card-boom-count">03</p>
+                  <span class="boom-icon" aria-hidden="true"></span>
+                </div>
+              </div>
+              <div class="flight-card-container" data-card-index="4">
+                <div class="flight-card-header">
+                  <h2 class="flight-title" aria-label="Flight Card">
+                    <span class="flight-title-block">Flight Card</span>
+                    <span class="flight-title-melt">Flight Card</span>
+                  </h2>
+                  <p class="flight-card-number">#005</p>
+                </div>
+                <div class="flight-grid-scroll">
+                  <div class="flight-grid-frame">
+                    <div class="flight-grid" aria-label="Flight card coordinate grid"></div>
+                  </div>
+                </div>
+                <div class="flight-card-footer">
+                  <p class="flight-card-boom-count">03</p>
+                  <span class="boom-icon" aria-hidden="true"></span>
+                </div>
+              </div>
             </div>
           </section>
         </div>
         <div class="flight-card-actions">
+          <button type="button" class="fly-btn" aria-label="Fly">
+            <span class="fly-btn-space" aria-hidden="true">Fly</span>
+            <span class="fly-btn-discovery" aria-hidden="true">Fly</span>
+          </button>
           <button type="button" class="deck-btn" aria-label="Deck">
-            <span class="deck-btn-block">Deck</span>
-            <span class="deck-btn-melt">Deck</span>
+            <span class="deck-btn-space" aria-hidden="true">Deck</span>
+            <span class="deck-btn-discovery" aria-hidden="true">Deck</span>
           </button>
         </div>
       </div>
@@ -130,6 +208,21 @@
               <span class="action-title-discovery"></span>
             </h2>
             <p></p>
+          </section>
+        </article>
+        <article class="app-shell action-card-shell deck-indicator-shell">
+          <section class="panel deck-indicator-content">
+            <div class="deck-stacks">
+              <div class="deck-stack">
+                <div id="deckStackVisual" class="stack-visual" aria-label="Remaining deck cards"></div>
+              </div>
+              <div class="discard-stack">
+                <div id="discardStackVisual" class="stack-visual" aria-label="Discarded cards"></div>
+              </div>
+            </div>
+            <div class="deck-counter">
+              <span id="deckCounter" class="counter-text">30/30</span>
+            </div>
           </section>
         </article>
       </div>

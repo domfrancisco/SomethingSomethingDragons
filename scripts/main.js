@@ -4,21 +4,58 @@ const actionCards = Array.from(document.querySelectorAll(".action-card-shell:not
 const deckStackVisual = document.getElementById("deckStackVisual");
 const discardStackVisual = document.getElementById("discardStackVisual");
 const deckCounter = document.getElementById("deckCounter");
-const flightCardContainers = Array.from(document.querySelectorAll(".flight-card-container"));
+const flightCardsStack = document.querySelector(".flight-cards-stack");
+let flightCardContainers = Array.from(document.querySelectorAll(".flight-card-container"));
 const saveStateButton = document.getElementById("menuSaveState");
 const loadStateButton = document.getElementById("menuLoadState");
 const resetStateButton = document.getElementById("menuResetState");
 
 const STORAGE_KEY = "something-something-dragons.state.v1";
+const TARGET_FLIGHT_STACK_SIZE = 10;
+
+function ensureFlightCardSlots(count) {
+  if (!flightCardsStack || flightCardContainers.length === 0) return;
+
+  const template = flightCardContainers[0];
+  while (flightCardContainers.length < count) {
+    const clone = template.cloneNode(true);
+    clone.classList.remove("hidden", "is-flying");
+    clone.setAttribute("data-card-index", String(flightCardContainers.length));
+    flightCardsStack.append(clone);
+    flightCardContainers.push(clone);
+  }
+}
+
+function applyFlightStackOffsets() {
+  const total = flightCardContainers.length;
+  flightCardContainers.forEach((container, index) => {
+    container.style.setProperty("--stack-offset", `${index * 2}px`);
+    container.style.setProperty("--stack-offset-x", `${index}px`);
+    container.style.zIndex = String(total - index);
+  });
+}
+
+ensureFlightCardSlots(TARGET_FLIGHT_STACK_SIZE);
+applyFlightStackOffsets();
+const FLIGHT_STACK_SIZE = flightCardContainers.length;
 
 // ── Flight Card State ──────────────────────────────────────────────────────
 
 /** Track which flight cards are currently visible (all visible initially). */
-let visibleFlightCards = new Set([0, 1, 2, 3, 4]);
+let visibleFlightCards = new Set();
+
+/** Active generated 10-card flight deck for the current run. */
+let currentFlightDeck = createFlightDeck();
+
+/** Cards currently loaded into the on-screen 10-card flight stack. */
+let activeFlightCards = [];
+
+/** Index of the next card to load from currentFlightDeck into the stack. */
+let nextFlightDeckIndex = 0;
 
 /** Get the topmost visible flight card index. */
 function getTopVisibleCardIndex() {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < FLIGHT_STACK_SIZE; i++) {
     if (visibleFlightCards.has(i)) {
       return i;
     }
@@ -30,7 +67,7 @@ function getTopVisibleCardIndex() {
 function getCurrentFlightCard() {
   const topIndex = getTopVisibleCardIndex();
   if (topIndex === -1) return null;
-  return FLIGHT_CARDS_DB[topIndex];
+  return activeFlightCards[topIndex] ?? null;
 }
 
 // ── Flight grid ───────────────────────────────────────────────────────────────
@@ -70,6 +107,7 @@ function createGridCell(coordinate, content) {
   cell.className = "grid-cell";
   cell.dataset.coordinate = coordinate;
   if (content) {
+    cell.classList.add("has-icon");
     cell.textContent = content;
     cell.style.fontSize = "1.5rem";
     cell.style.display = "flex";
@@ -80,14 +118,23 @@ function createGridCell(coordinate, content) {
 }
 
 function renderFlightGrid() {
-  // Render all 5 flight cards
+  // Render the currently loaded stack cards.
   flightCardContainers.forEach((container, index) => {
-    const cardData = FLIGHT_CARDS_DB[index];
+    const cardData = activeFlightCards[index];
     
     // Find the grid element within this container
     const gridElement = container.querySelector(".flight-grid");
     if (!gridElement) return;
     
+    if (!cardData) {
+      gridElement.replaceChildren();
+      const numberEl = container.querySelector(".flight-card-number");
+      const boomEl = container.querySelector(".flight-card-boom-count");
+      if (numberEl) numberEl.textContent = "";
+      if (boomEl) boomEl.textContent = "";
+      return;
+    }
+
     const fragment = document.createDocumentFragment();
 
     flightCard.rows.forEach((row) => {
@@ -107,7 +154,7 @@ function renderFlightGrid() {
 
     gridElement.replaceChildren(fragment);
     
-    // Update the flight card number and boom count for this card
+    // Update the flight card number and boom count for this card.
     const numberEl = container.querySelector(".flight-card-number");
     const boomEl = container.querySelector(".flight-card-boom-count");
     if (numberEl) {
@@ -119,7 +166,30 @@ function renderFlightGrid() {
   });
 }
 
-renderFlightGrid();
+function loadNextFlightStack() {
+  const nextCards = currentFlightDeck.slice(nextFlightDeckIndex, nextFlightDeckIndex + FLIGHT_STACK_SIZE);
+  activeFlightCards = nextCards;
+  nextFlightDeckIndex += nextCards.length;
+
+  visibleFlightCards = new Set(nextCards.map((_, index) => index));
+
+  flightCardContainers.forEach((container, index) => {
+    container.classList.remove("is-flying", "hidden");
+    if (!activeFlightCards[index]) {
+      container.classList.add("hidden");
+    }
+  });
+
+  renderFlightGrid();
+  updateFlightStackClasses();
+  setFlyButtonText("Fly");
+}
+
+function startNewFlightDeck() {
+  currentFlightDeck = createFlightDeck();
+  nextFlightDeckIndex = 0;
+  loadNextFlightStack();
+}
 
 // ── Deck indicator state ──────────────────────────────────────────────────
 
@@ -338,14 +408,27 @@ function setFlyButtonText(text) {
   if (flyDiscovery) flyDiscovery.textContent = text;
 }
 
-function resetFlightState() {
-  visibleFlightCards = new Set([0, 1, 2, 3, 4]);
-  flightCardContainers.forEach((container) => {
-    container.classList.remove("hidden");
-    container.classList.remove("is-flying");
+function updateFlightStackClasses() {
+  const topIndex = getTopVisibleCardIndex();
+
+  flightCardContainers.forEach((container, index) => {
+    container.classList.remove("is-top-visible", "is-below-top");
+
+    if (!visibleFlightCards.has(index) || container.classList.contains("hidden")) {
+      return;
+    }
+
+    if (index === topIndex) {
+      container.classList.add("is-top-visible");
+    } else {
+      container.classList.add("is-below-top");
+    }
   });
+}
+
+function resetFlightState() {
   isFlightAnimating = false;
-  setFlyButtonText("Fly");
+  startNewFlightDeck();
 }
 
 function resetActionState() {
@@ -366,6 +449,9 @@ function saveGameState() {
     drawIndex,
     discardedCount,
     currentActionCardIds,
+    currentFlightDeck,
+    activeFlightCards,
+    nextFlightDeckIndex,
     visibleFlightCardIndices: Array.from(visibleFlightCards),
   };
 
@@ -374,16 +460,16 @@ function saveGameState() {
 
 function loadGameState() {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return;
+  if (!raw) return false;
 
   let state;
   try {
     state = JSON.parse(raw);
   } catch {
-    return;
+    return false;
   }
 
-  if (!state || typeof state !== "object") return;
+  if (!state || typeof state !== "object") return false;
 
   if (Array.isArray(state.drawPile)) {
     drawPile = state.drawPile.filter((id) => Boolean(getCard(id)));
@@ -407,23 +493,61 @@ function loadGameState() {
     }
   }
 
+  if (Array.isArray(state.currentFlightDeck)) {
+    currentFlightDeck = state.currentFlightDeck
+      .filter((card) => card && typeof card === "object" && Array.isArray(card.grid))
+      .map((card) => ({
+        id: String(card.id),
+        cardNumber: Number(card.cardNumber),
+        boomCount: Number(card.boomCount),
+        grid: [...card.grid],
+      }));
+  }
+
+  if (typeof state.nextFlightDeckIndex === "number") {
+    nextFlightDeckIndex = Math.max(0, Math.min(Math.floor(state.nextFlightDeckIndex), currentFlightDeck.length));
+  }
+
+  if (Array.isArray(state.activeFlightCards)) {
+    activeFlightCards = state.activeFlightCards
+      .filter((card) => card && typeof card === "object" && Array.isArray(card.grid))
+      .map((card) => ({
+        id: String(card.id),
+        cardNumber: Number(card.cardNumber),
+        boomCount: Number(card.boomCount),
+        grid: [...card.grid],
+      }));
+  }
+
+  if (activeFlightCards.length === 0 && currentFlightDeck.length > 0) {
+    const startIndex = Math.max(0, nextFlightDeckIndex - FLIGHT_STACK_SIZE);
+    activeFlightCards = currentFlightDeck.slice(startIndex, startIndex + FLIGHT_STACK_SIZE);
+  }
+
+  renderFlightGrid();
+
   if (Array.isArray(state.visibleFlightCardIndices)) {
     visibleFlightCards = new Set(
       state.visibleFlightCardIndices
         .map((n) => Number(n))
         .filter((n) => Number.isInteger(n) && n >= 0 && n < flightCardContainers.length)
     );
-
-    flightCardContainers.forEach((container, index) => {
-      container.classList.remove("is-flying");
-      container.classList.toggle("hidden", !visibleFlightCards.has(index));
-    });
-
-    setFlyButtonText(visibleFlightCards.size === 0 ? "New Flight" : "Fly");
+  } else {
+    visibleFlightCards = new Set(activeFlightCards.map((_, index) => index));
   }
+
+  flightCardContainers.forEach((container, index) => {
+    container.classList.remove("is-flying");
+    const shouldHide = !activeFlightCards[index] || !visibleFlightCards.has(index);
+    container.classList.toggle("hidden", shouldHide);
+  });
+
+  updateFlightStackClasses();
+  setFlyButtonText(visibleFlightCards.size === 0 && nextFlightDeckIndex >= currentFlightDeck.length ? "New Flight" : "Fly");
 
   isFlightAnimating = false;
   renderDeckIndicator();
+  return true;
 }
 
 function resetGameState() {
@@ -437,8 +561,8 @@ function resetGameState() {
 setActionCardFlipOrder();
 
 // Load first 5 cards immediately on page load (no animation).
-// Load all 5 flight cards on page load
-renderFlightGrid();
+// Load first flight stack on page load.
+startNewFlightDeck();
 renderActionCards(drawCards(actionCards.length));
 renderDeckIndicator();
 loadGameState();
@@ -458,8 +582,13 @@ if (flyButton) {
     const topIndex = getTopVisibleCardIndex();
     
     if (topIndex === -1) {
-      // No visible cards left, reset
-      resetFlightState();
+      if (nextFlightDeckIndex >= currentFlightDeck.length) {
+        // Deck exhausted: start a brand-new generated flight deck.
+        startNewFlightDeck();
+      } else {
+        // More cards are available in this deck: load the next stack.
+        loadNextFlightStack();
+      }
     } else {
       // Animate the top visible card toward the viewer, then hide it.
       const topCard = flightCardContainers[topIndex];
@@ -476,10 +605,11 @@ if (flyButton) {
         topCard.classList.add("hidden");
         visibleFlightCards.delete(topIndex);
         isFlightAnimating = false;
+        updateFlightStackClasses();
 
-        // If all cards are now hidden, change button text to "New Flight"
+        // If stack is empty, show the next expected action on the button.
         if (visibleFlightCards.size === 0) {
-          setFlyButtonText("New Flight");
+          setFlyButtonText(nextFlightDeckIndex >= currentFlightDeck.length ? "New Flight" : "Fly");
         }
       });
     }

@@ -151,13 +151,13 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 4.5rem;
-  min-height: 2.6rem;
+  width: 2.6rem;
+  height: 2.6rem;
   background: rgba(15, 23, 42, 0.65);
   border: 1px solid var(--panel-border);
   border-radius: 6px;
   cursor: pointer;
-  padding: 0.5rem 0.9rem;
+  padding: 0;
   transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
@@ -359,38 +359,38 @@ body {
 }
 
 .action-card-red {
-  --card-light: rgba(230, 112, 112, 0.58);
-  --card-mid-1: rgba(173, 49, 49, 0.8);
-  --card-mid-2: rgba(112, 23, 23, 0.94);
-  --card-dark: rgba(79, 15, 15, 0.98);
+  --card-light: rgba(224, 129, 129, 0.58);
+  --card-mid-1: rgba(176, 63, 70, 0.82);
+  --card-mid-2: rgba(120, 33, 43, 0.94);
+  --card-dark: rgba(82, 21, 28, 0.98);
 }
 
 .action-card-orange {
-  --card-light: rgba(246, 184, 97, 0.58);
-  --card-mid-1: rgba(211, 129, 31, 0.8);
-  --card-mid-2: rgba(140, 80, 18, 0.94);
-  --card-dark: rgba(96, 54, 12, 0.98);
+  --card-light: rgba(250, 203, 118, 0.58);
+  --card-mid-1: rgba(223, 150, 42, 0.82);
+  --card-mid-2: rgba(154, 94, 20, 0.94);
+  --card-dark: rgba(106, 63, 13, 0.98);
 }
 
 .action-card-green {
-  --card-light: rgba(126, 199, 137, 0.58);
-  --card-mid-1: rgba(49, 130, 72, 0.8);
-  --card-mid-2: rgba(17, 83, 46, 0.94);
-  --card-dark: rgba(12, 61, 33, 0.98);
+  --card-light: rgba(142, 208, 172, 0.58);
+  --card-mid-1: rgba(52, 145, 108, 0.82);
+  --card-mid-2: rgba(21, 94, 72, 0.94);
+  --card-dark: rgba(13, 67, 52, 0.98);
 }
 
 .action-card-blue {
-  --card-light: rgba(120, 178, 236, 0.58);
-  --card-mid-1: rgba(49, 109, 176, 0.8);
-  --card-mid-2: rgba(25, 65, 118, 0.94);
-  --card-dark: rgba(18, 45, 81, 0.98);
+  --card-light: rgba(135, 193, 240, 0.58);
+  --card-mid-1: rgba(58, 122, 190, 0.82);
+  --card-mid-2: rgba(28, 73, 128, 0.94);
+  --card-dark: rgba(18, 49, 88, 0.98);
 }
 
 .action-card-pink {
-  --card-light: rgba(241, 152, 210, 0.58);
-  --card-mid-1: rgba(203, 82, 155, 0.8);
-  --card-mid-2: rgba(132, 43, 102, 0.94);
-  --card-dark: rgba(92, 28, 69, 0.98);
+  --card-light: rgba(235, 160, 218, 0.58);
+  --card-mid-1: rgba(188, 87, 166, 0.82);
+  --card-mid-2: rgba(124, 45, 118, 0.94);
+  --card-dark: rgba(84, 28, 82, 0.98);
 }
 
 .action-card-shell.is-flipping {

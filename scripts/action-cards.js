@@ -1,20 +1,21 @@
 /**
+ * Action card database and deck utilities.
+ *
+ * This file owns the action-card data model and deck operations used by main.js.
+ */
+
+/**
  * Card database.
  * Each entry defines a unique card type.
- *
- * Properties:
- *   id     {string}  - Stable unique identifier used for lookups and deck references.
- *   text   {string}  - Display name shown on the card.
- *   color  {string}  - Matches the action-card-* CSS class suffix (red, orange, green, blue, pink).
  */
 const CARD_DB = Object.freeze({
   attack_1: { id: "attack_1", text: "Attack 1", color: "red" },
   attack_2: { id: "attack_2", text: "Attack 2", color: "red" },
-  move_1:   { id: "move_1",   text: "Move 1",   color: "green" },
-  move_2:   { id: "move_2",   text: "Move 2",   color: "green" },
-  heal_1:   { id: "heal_1",   text: "Heal 1",   color: "pink" },
+  move_1: { id: "move_1", text: "Move 1", color: "green" },
+  move_2: { id: "move_2", text: "Move 2", color: "green" },
+  heal_1: { id: "heal_1", text: "Heal 1", color: "pink" },
   freeze_1: { id: "freeze_1", text: "Freeze 1", color: "blue" },
-  blast:    { id: "blast",    text: "Blast",     color: "orange" },
+  blast: { id: "blast", text: "Blast", color: "orange" },
 });
 
 /** Maximum cards allowed in a single deck. */
@@ -31,9 +32,6 @@ function createDeck(name) {
 
 /**
  * Adds one copy of a card to a deck.
- * Returns true if the card was added, false if the deck is already full
- * or the card id is not in the database.
- *
  * @param {{ name: string, cards: string[] }} deck
  * @param {string} cardId
  * @returns {boolean}
@@ -53,8 +51,6 @@ function addCardToDeck(deck, cardId) {
 
 /**
  * Removes one copy of a card from a deck.
- * Returns true if a copy was found and removed.
- *
  * @param {{ name: string, cards: string[] }} deck
  * @param {string} cardId
  * @returns {boolean}
@@ -111,47 +107,6 @@ function shuffleArray(array) {
 function shuffleDeck(deck) {
   return shuffleArray([...deck.cards]);
 }
-
-// ── Flight Cards Database ─────────────────────────────────────────────────
-
-const FRUIT_ITEMS = ["🍎", "🍊", "🍇"];
-
-/**
- * Generates a random flight card with 3 randomly placed fruit items in a 5x5 grid.
- * @param {number} cardNumber
- * @returns {{ id: string, cardNumber: number, boomCount: number, grid: (string|null)[] }}
- */
-function generateFlightCard(cardNumber) {
-  const grid = new Array(25).fill(null);
-  const boomCount = Math.floor(Math.random() * 3) + 3; // 3-5
-  
-  // Randomly place 3 fruit items in the 25 cells
-  const itemIndices = new Set();
-  while (itemIndices.size < 3) {
-    itemIndices.add(Math.floor(Math.random() * 25));
-  }
-  
-  itemIndices.forEach((index) => {
-    const randomFruit = FRUIT_ITEMS[Math.floor(Math.random() * FRUIT_ITEMS.length)];
-    grid[index] = randomFruit;
-  });
-  
-  return {
-    id: `flight_${cardNumber}`,
-    cardNumber,
-    boomCount,
-    grid,
-  };
-}
-
-/** Array of 5 pre-generated flight cards. */
-const FLIGHT_CARDS_DB = Object.freeze([
-  generateFlightCard(1),
-  generateFlightCard(2),
-  generateFlightCard(3),
-  generateFlightCard(4),
-  generateFlightCard(5),
-]);
 
 /**
  * Default deck - 30 cards.

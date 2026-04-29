@@ -18,16 +18,20 @@ function createFlightGrid(entries) {
   return grid;
 }
 
-/** Base pool of 5 flight cards. */
+/** Base pool of 6 flight cards (2x each insect type). */
 const FLIGHT_CARDS_DB = Object.freeze([
   {
     id: "flight_1",
     cardNumber: 1,
-    boomCount: 3,
+    boomCount: 4,
     grid: createFlightGrid([
-      [1, "🍎"],
-      [12, "🍊"],
-      [23, "🍇"],
+      // Fly card A: two vertical groups (3 and 2), plus one apple.
+      [0, "🪰"],
+      [5, "🪰"],
+      [10, "🪰"],
+      [3, "🪰"],
+      [8, "🪰"],
+      [22, "🍎"],
     ]),
   },
   {
@@ -35,9 +39,12 @@ const FLIGHT_CARDS_DB = Object.freeze([
     cardNumber: 2,
     boomCount: 4,
     grid: createFlightGrid([
-      [4, "🍇"],
-      [10, "🍎"],
-      [17, "🍊"],
+      // Fly card B: two vertical groups (2 and 3).
+      [1, "🪰"],
+      [6, "🪰"],
+      [4, "🪰"],
+      [9, "🪰"],
+      [14, "🪰"],
     ]),
   },
   {
@@ -45,29 +52,53 @@ const FLIGHT_CARDS_DB = Object.freeze([
     cardNumber: 3,
     boomCount: 5,
     grid: createFlightGrid([
-      [0, "🍊"],
-      [8, "🍇"],
-      [21, "🍎"],
+      // Mosquito card A: sine-wave-like path across columns, plus one apple.
+      [10, "🦟"],
+      [6, "🦟"],
+      [2, "🦟"],
+      [8, "🦟"],
+      [14, "🦟"],
+      [24, "🍎"],
     ]),
   },
   {
     id: "flight_4",
     cardNumber: 4,
-    boomCount: 3,
+    boomCount: 5,
     grid: createFlightGrid([
-      [6, "🍎"],
-      [14, "🍇"],
-      [24, "🍊"],
+      // Mosquito card B: mirrored sine-wave-like path.
+      [0, "🦟"],
+      [6, "🦟"],
+      [12, "🦟"],
+      [8, "🦟"],
+      [4, "🦟"],
     ]),
   },
   {
     id: "flight_5",
     cardNumber: 5,
-    boomCount: 4,
+    boomCount: 5,
     grid: createFlightGrid([
-      [2, "🍇"],
-      [11, "🍊"],
-      [20, "🍎"],
+      // Honeybee card A: one horizontal line above bottom row, plus one apple.
+      [15, "🐝"],
+      [16, "🐝"],
+      [17, "🐝"],
+      [18, "🐝"],
+      [19, "🐝"],
+      [7, "🍎"],
+    ]),
+  },
+  {
+    id: "flight_6",
+    cardNumber: 6,
+    boomCount: 5,
+    grid: createFlightGrid([
+      // Honeybee card B: one horizontal line above bottom row.
+      [10, "🐝"],
+      [11, "🐝"],
+      [12, "🐝"],
+      [13, "🐝"],
+      [14, "🐝"],
     ]),
   },
 ]);
@@ -79,7 +110,7 @@ const FLIGHT_DECK_SIZE = 10;
 const FLIGHT_MAX_COPIES_PER_CARD = 3;
 
 /**
- * Builds a random 10-card flight deck from the 5-card base pool.
+ * Builds a random 10-card flight deck from the 6-card base pool.
  * Allows duplicates, but no card can appear more than 3 times.
  *
  * @returns {Array<{ id: string, cardNumber: number, boomCount: number, grid: (string|null)[] }>}

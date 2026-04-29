@@ -63,6 +63,16 @@ function getTopVisibleCardIndex() {
   return -1;
 }
 
+/** Get the next visible card index after a given card index. */
+function getNextVisibleCardIndex(startIndex) {
+  for (let i = startIndex + 1; i < FLIGHT_STACK_SIZE; i++) {
+    if (visibleFlightCards.has(i) && !flightCardContainers[i].classList.contains("hidden")) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 /** Get the current flight card data. */
 function getCurrentFlightCard() {
   const topIndex = getTopVisibleCardIndex();
@@ -203,6 +213,7 @@ let discardedCount = 0;
 function renderDeckIndicator() {
   // Calculate remaining cards in current draw pile
   const cardsRemaining = Math.max(0, drawPile.length - drawIndex);
+  const cardsInDiscard = Math.max(0, Math.min(discardedCount, DECK_MAX_SIZE));
   
   // Clear existing stacks
   deckStackVisual.replaceChildren();
@@ -216,7 +227,7 @@ function renderDeckIndicator() {
   }
 
   // Render discard stack - show ALL discarded cards
-  for (let i = 0; i < discardedCount; i++) {
+  for (let i = 0; i < cardsInDiscard; i++) {
     const rect = document.createElement("div");
     rect.className = "card-rect";
     discardStackVisual.append(rect);
@@ -239,7 +250,7 @@ function renderDeckIndicator() {
     deckStackVisual.style.minHeight = calcHeight(cardsRemaining);
   }
   if (discardStackVisual) {
-    discardStackVisual.style.minHeight = calcHeight(discardedCount);
+    discardStackVisual.style.minHeight = calcHeight(cardsInDiscard);
   }
 
   // Update counter: remaining / total
@@ -270,12 +281,16 @@ let currentActionCardIds = [];
  * @returns {{ id: string, text: string, color: string }[]}
  */
 function drawCards(count) {
+  // Keep draw/discard visuals in a single cycle: if the next hand would cross
+  // the end of the deck, start a fresh shuffled cycle before drawing.
+  if (drawIndex + count > drawPile.length) {
+    drawPile = shuffleDeck(defaultDeck);
+    drawIndex = 0;
+    discardedCount = 0;
+  }
+
   const drawn = [];
   for (let i = 0; i < count; i++) {
-    if (drawIndex >= drawPile.length) {
-      drawPile = shuffleDeck(defaultDeck);
-      drawIndex = 0;
-    }
     const cardId = drawPile[drawIndex++];
     drawn.push(getCard(cardId));
   }
@@ -412,7 +427,7 @@ function updateFlightStackClasses() {
   const topIndex = getTopVisibleCardIndex();
 
   flightCardContainers.forEach((container, index) => {
-    container.classList.remove("is-top-visible", "is-below-top");
+    container.classList.remove("is-top-visible", "is-below-top", "is-next-reveal");
 
     if (!visibleFlightCards.has(index) || container.classList.contains("hidden")) {
       return;
@@ -592,6 +607,12 @@ if (flyButton) {
     } else {
       // Animate the top visible card toward the viewer, then hide it.
       const topCard = flightCardContainers[topIndex];
+      const nextRevealIndex = getNextVisibleCardIndex(topIndex);
+
+      if (nextRevealIndex !== -1) {
+        flightCardContainers[nextRevealIndex].classList.add("is-next-reveal");
+      }
+
       isFlightAnimating = true;
       topCard.classList.remove("is-flying");
       void topCard.offsetWidth;

@@ -326,6 +326,14 @@ function renderActionCards(cards) {
     // Update body text.
     const bodyEl = shell.querySelector(".action-card-content > p");
     if (bodyEl) bodyEl.textContent = cardData.text;
+
+    // Set random image background.
+    const imageEl = shell.querySelector(".action-card-image");
+    if (imageEl) {
+      const randomId = Math.floor(Math.random() * 1000);
+      const imageUrl = `https://picsum.photos/700/500?random=${randomId}`;
+      imageEl.style.backgroundImage = `url('${imageUrl}')`;
+    }
   });
 }
 

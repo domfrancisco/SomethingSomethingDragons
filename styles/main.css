@@ -20,7 +20,7 @@
   --grid-bottom-coord-size: 24pt;
   --flight-grid-safe-edge: 2px;
   --flight-card-padding-inline: 8pt;
-  --flight-card-padding-right: calc(3 * var(--flight-card-padding-inline));
+  --flight-card-padding-right: calc(2 * var(--flight-card-padding-inline));
   --flight-card-padding-bottom: var(--flight-card-padding-inline);
   --flight-card-max-width: calc(
     (var(--grid-dimension) * var(--grid-cell-ideal-size)) +
@@ -341,7 +341,7 @@ body {
   width: 100%;
   max-width: var(--action-card-max-width);
   aspect-ratio: 5 / 7;
-  padding: 8px;
+  padding: 0;
   position: relative;
   display: flex;
   align-items: stretch;
@@ -395,11 +395,15 @@ body {
 }
 
 .action-card-content {
+  --action-gap: 6px;
+  --action-image-height: clamp(92px, 30%, 150px);
+  --action-title-height: 30px;
   width: 100%;
+  height: 100%;
   border-radius: 4px;
-  align-content: space-between;
-  background: transparent;
-  padding: 0.4rem;
+  background: #ffffff;
+  padding: 0;
+  box-sizing: border-box;
   color: var(--text-main);
 }
 
@@ -453,7 +457,7 @@ h2 {
   --stack-offset-x: 0px;
   width: 100%;
   max-width: 100%;
-  padding: var(--flight-card-padding-inline) var(--flight-card-padding-right) var(--flight-card-padding-bottom) var(--flight-card-padding-inline);
+  padding: 0 calc(var(--flight-card-padding-right) - var(--flight-card-padding-inline)) var(--flight-card-padding-bottom) 0;
   opacity: 1;
   transform: translate(var(--stack-offset-x), var(--stack-offset));
   transition: opacity 380ms ease, transform 380ms ease;
@@ -463,7 +467,9 @@ h2 {
   border-radius: 6px;
   border: 1px solid #6b7f8e;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(180, 189, 198, 0.15) 0%, rgba(135, 144, 153, 0.15) 12%, rgba(81, 90, 99, 0.15) 25%, rgba(54, 63, 72, 0.15) 38%, rgba(90, 99, 108, 0.15) 55%, rgba(63, 72, 81, 0.15) 72%, rgba(45, 54, 63, 0.15) 100%);
+  background: linear-gradient(135deg, rgba(60, 70, 79, 0.15) 0%, rgba(55, 64, 73, 0.15) 18%, rgba(177, 186, 195, 0.15) 26%, rgba(120, 129, 138, 0.15) 30%, rgba(76, 85, 94, 0.15) 48%, rgba(172, 181, 190, 0.15) 58%, rgba(120, 129, 138, 0.15) 66%, rgba(58, 67, 76, 0.15) 100%);
+  background-size: 130% 130%;
+  background-position: 12% 14%;
   -webkit-backdrop-filter: blur(0.5px);
   backdrop-filter: blur(0.5px);
   box-shadow:
@@ -537,27 +543,51 @@ h2 {
 }
 
 .flight-card-header {
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: baseline;
-  padding-bottom: 8pt;
+  padding-top: 4pt;
+  padding-bottom: 4pt;
   width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap)));
 }
 
 .action-title {
   position: relative;
-  margin: 0 0 0.5rem;
-  min-height: 12pt;
+  display: block;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  height: var(--action-title-height);
   font-size: 12pt;
-  line-height: 1;
+  line-height: 1.1;
   color: transparent;
+  background-color: var(--card-mid-2);
+  background: radial-gradient(circle at 32% 24%, var(--card-light) 0%, var(--card-mid-1) 32%, var(--card-mid-2) 70%, var(--card-dark) 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center;
+  border-radius: 4px 4px 0 0;
+  padding: var(--action-gap);
+  overflow: hidden;
+}
+
+.action-card-image {
+  width: 100%;
+  height: var(--action-image-height);
+  margin: 0 0 var(--action-gap) 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 0;
+  padding: 0;
 }
 
 .action-title-space,
 .action-title-discovery {
   position: absolute;
-  inset: 0;
+  inset: var(--action-gap);
   display: block;
-  line-height: 1;
+  line-height: 18px;
   font-size: inherit;
   font-style: normal;
   font-weight: 700;
@@ -578,31 +608,48 @@ h2 {
 
 .action-card-content > p {
   margin: 0;
+  height: calc(100% - var(--action-title-height) - var(--action-image-height) - var(--action-gap));
+  box-sizing: border-box;
+  overflow: auto;
   font-size: 8pt;
   line-height: 1.3;
+  background-color: #ffffff;
+  border: 2px solid var(--card-mid-1);
+  border-radius: 4px;
+  padding: 4px;
+  color: #000000;
 }
 
 .flight-card-footer {
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: baseline;
   gap: 0.45rem;
+  padding-left: 10px;
   margin-right: 0;
   width: calc((var(--grid-dimension) * var(--grid-cell-ideal-size)) + var(--grid-coord-size) + (var(--grid-dimension) * var(--grid-gap)));
 }
 
-.flight-card-header h2,
+.flight-card-boom-group {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+
 .flight-card-number,
 .flight-card-boom-count {
   margin: 0;
 }
 
-.flight-card-header h2 {
-  padding-left: var(--grid-coord-size);
+.flight-card-footer .flight-title {
+  margin: 0;
 }
 
 .flight-title {
   position: relative;
   display: inline-block;
-  font-size: 24pt;
+  font-size: 16pt;
   line-height: 1;
 }
 
@@ -624,7 +671,7 @@ h2 {
 .flight-title .flight-title-melt {
   position: absolute;
   top: 0;
-  left: var(--grid-coord-size);
+  left: 1px;
   font-family: "cc-frostbite-melt", sans-serif;
   color: #222631;
 }

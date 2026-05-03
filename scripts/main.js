@@ -324,7 +324,7 @@ function renderActionCards(cards) {
     }
 
     // Update body text.
-    const bodyEl = shell.querySelector(".action-card-content > p");
+    const bodyEl = shell.querySelector(".action-card-body > p");
     if (bodyEl) bodyEl.textContent = cardData.text;
 
     // Set random image background.

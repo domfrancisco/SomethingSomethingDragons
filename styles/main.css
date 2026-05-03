@@ -573,7 +573,7 @@ h2 {
 .action-card-image {
   width: 100%;
   height: var(--action-image-height);
-  margin: 0 0 var(--action-gap) 0;
+  margin: 0;
   background-size: cover;
   background-position: center;
   background-color: #ffffff;
@@ -606,18 +606,32 @@ h2 {
   color: #f4f7f1;
 }
 
-.action-card-content > p {
+.action-card-body {
+  height: calc(100% - var(--action-title-height) - var(--action-image-height));
+  box-sizing: border-box;
+  overflow: hidden;
   margin: 0;
-  height: calc(100% - var(--action-title-height) - var(--action-image-height) - var(--action-gap));
+  border: 0;
+  padding: 0;
+  background-color: #d7c19a;
+  background-image:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.28) 0, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 82% 16%, rgba(120, 82, 38, 0.14) 0, rgba(120, 82, 38, 0) 28%),
+    linear-gradient(180deg, rgba(244, 229, 192, 0.92) 0%, rgba(215, 193, 154, 0.96) 48%, rgba(196, 168, 124, 0.98) 100%);
+}
+
+.action-card-body > p {
+  margin: var(--action-gap);
+  height: calc(100% - (2 * var(--action-gap)));
   box-sizing: border-box;
   overflow: auto;
   font-size: 8pt;
   line-height: 1.3;
-  background-color: #ffffff;
+  background-color: transparent;
   border: 2px solid var(--card-mid-1);
   border-radius: 4px;
   padding: 4px;
-  color: #000000;
+  color: #2b2114;
 }
 
 .flight-card-footer {

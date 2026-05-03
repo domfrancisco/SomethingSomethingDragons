@@ -1,22 +1,10 @@
 /**
- * Action card database and deck utilities.
+ * Action card deck utilities and DOM factories.
  *
- * This file owns the action-card data model and deck operations used by main.js.
+ * Data lives in action-card-data.js.
  */
 
-/**
- * Card database.
- * Each entry defines a unique card type.
- */
-const CARD_DB = Object.freeze({
-  attack_1: { id: "attack_1", text: "Attack 1. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.", color: "red" },
-  attack_2: { id: "attack_2", text: "Attack 2. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.", color: "red" },
-  move_1: { id: "move_1", text: "Move 1. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.", color: "green" },
-  move_2: { id: "move_2", text: "Move 2. Consectetur adipisci velit, sed quia non numquam eius modi tempora incidunt.", color: "green" },
-  heal_1: { id: "heal_1", text: "Heal 1. Ut labore et dolore magnam aliquam quaerat voluptatem in hac potenti turpis.", color: "pink" },
-  freeze_1: { id: "freeze_1", text: "Freeze 1. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.", color: "blue" },
-  blast: { id: "blast", text: "Blast. Praesentium voluptatum deleniti atque corrupti et quos dolores et quas molestias excepturi sint.", color: "orange" },
-});
+const ACTION_CARD_SLOT_COUNT = 5;
 
 /** Maximum cards allowed in a single deck. */
 const DECK_MAX_SIZE = 30;
@@ -37,7 +25,7 @@ function createDeck(name) {
  * @returns {boolean}
  */
 function addCardToDeck(deck, cardId) {
-  if (!CARD_DB[cardId]) {
+  if (!ACTION_CARD_DEFINITIONS[cardId]) {
     console.warn(`addCardToDeck: unknown card id "${cardId}"`);
     return false;
   }
@@ -77,12 +65,12 @@ function getDeckCounts(deck) {
 }
 
 /**
- * Resolves a card id to its full definition from CARD_DB.
+ * Resolves a card id to its full definition from ACTION_CARD_DEFINITIONS.
  * @param {string} cardId
  * @returns {{ id: string, text: string, color: string } | undefined}
  */
 function getCard(cardId) {
-  return CARD_DB[cardId];
+  return ACTION_CARD_DEFINITIONS[cardId];
 }
 
 /**
@@ -114,12 +102,41 @@ function shuffleDeck(deck) {
  */
 const defaultDeck = createDeck("Default");
 
-[
-  ...Array(8).fill("attack_1"),
-  ...Array(8).fill("move_1"),
-  ...Array(4).fill("attack_2"),
-  ...Array(4).fill("move_2"),
-  ...Array(3).fill("heal_1"),
-  ...Array(2).fill("freeze_1"),
-  ...Array(1).fill("blast"),
-].forEach((id) => addCardToDeck(defaultDeck, id));
+ACTION_DEFAULT_DECK_CARD_IDS.forEach((id) => addCardToDeck(defaultDeck, id));
+
+function createActionCardShell() {
+  const article = document.createElement("article");
+  article.className = "app-shell action-card-shell";
+
+  const section = document.createElement("section");
+  section.className = "action-card-content";
+
+  const title = document.createElement("h2");
+  title.className = "action-title";
+  title.setAttribute("aria-label", "");
+
+  const titleSpace = document.createElement("span");
+  titleSpace.className = "action-title-space";
+
+  const titleDiscovery = document.createElement("span");
+  titleDiscovery.className = "action-title-discovery";
+
+  title.append(titleSpace, titleDiscovery);
+
+  const image = document.createElement("div");
+  image.className = "action-card-image";
+
+  const body = document.createElement("div");
+  body.className = "action-card-body";
+
+  const paragraph = document.createElement("p");
+  body.append(paragraph);
+
+  section.append(title, image, body);
+  article.append(section);
+  return article;
+}
+
+function createActionCardShells(count = ACTION_CARD_SLOT_COUNT) {
+  return Array.from({ length: count }, () => createActionCardShell());
+}

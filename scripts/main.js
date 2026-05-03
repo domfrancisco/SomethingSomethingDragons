@@ -1,30 +1,43 @@
 const flyButton = document.querySelector(".fly-btn");
 const deckButton = document.querySelector(".deck-btn");
-const actionCards = Array.from(document.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)"));
+const actionCardsPanel = document.querySelector(".action-cards-panel");
+const deckIndicatorShell = actionCardsPanel?.querySelector(".deck-indicator-shell") ?? null;
 const deckStackVisual = document.getElementById("deckStackVisual");
 const discardStackVisual = document.getElementById("discardStackVisual");
 const deckCounter = document.getElementById("deckCounter");
 const flightCardsStack = document.querySelector(".flight-cards-stack");
-let flightCardContainers = Array.from(document.querySelectorAll(".flight-card-container"));
 const saveStateButton = document.getElementById("menuSaveState");
 const loadStateButton = document.getElementById("menuLoadState");
 const resetStateButton = document.getElementById("menuResetState");
 
 const STORAGE_KEY = "something-something-dragons.state.v1";
-const TARGET_FLIGHT_STACK_SIZE = 10;
+const TARGET_FLIGHT_STACK_SIZE = FLIGHT_STACK_SLOT_COUNT;
 
-function ensureFlightCardSlots(count) {
-  if (!flightCardsStack || flightCardContainers.length === 0) return;
+function initializeCardShells() {
+  if (actionCardsPanel) {
+    actionCardsPanel.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)").forEach((node) => node.remove());
 
-  const template = flightCardContainers[0];
-  while (flightCardContainers.length < count) {
-    const clone = template.cloneNode(true);
-    clone.classList.remove("hidden", "is-flying");
-    clone.setAttribute("data-card-index", String(flightCardContainers.length));
-    flightCardsStack.append(clone);
-    flightCardContainers.push(clone);
+    const actionFragment = document.createDocumentFragment();
+    createActionCardShells().forEach((card) => actionFragment.append(card));
+
+    if (deckIndicatorShell) {
+      actionCardsPanel.insertBefore(actionFragment, deckIndicatorShell);
+    } else {
+      actionCardsPanel.append(actionFragment);
+    }
+  }
+
+  if (flightCardsStack) {
+    const flightFragment = document.createDocumentFragment();
+    createFlightCardContainers(TARGET_FLIGHT_STACK_SIZE).forEach((card) => flightFragment.append(card));
+    flightCardsStack.replaceChildren(flightFragment);
   }
 }
+
+initializeCardShells();
+
+const actionCards = Array.from(document.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)"));
+let flightCardContainers = Array.from(document.querySelectorAll(".flight-card-container"));
 
 function applyFlightStackOffsets() {
   const total = flightCardContainers.length;
@@ -35,7 +48,6 @@ function applyFlightStackOffsets() {
   });
 }
 
-ensureFlightCardSlots(TARGET_FLIGHT_STACK_SIZE);
 applyFlightStackOffsets();
 const FLIGHT_STACK_SIZE = flightCardContainers.length;
 
@@ -399,7 +411,7 @@ function triggerFlipThenRender(cards) {
         titleEl.querySelector(".action-title-discovery").textContent = "Action Card";
       }
 
-      const bodyEl = card.querySelector(".action-card-content > p");
+      const bodyEl = card.querySelector(".action-card-body > p");
       if (bodyEl) bodyEl.textContent = cardData.text;
     }, midpointMs);
 

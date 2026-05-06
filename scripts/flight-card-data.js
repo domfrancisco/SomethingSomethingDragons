@@ -40,7 +40,7 @@ const FLIGHT_CARD_DEFINITIONS = Object.freeze([
       [2, "🦟"],
       [8, "🦟"],
       [14, "🦟"],
-      [24, "🍎"],
+      [23, "🍎"],
     ],
   },
   {

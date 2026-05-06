@@ -7,14 +7,16 @@
 const FLIGHT_STACK_SLOT_COUNT = 10;
 
 /**
- * Creates a 5x5 flight grid (25 cells) from [index, value] pairs.
+ * Creates a 6x4 flight grid (24 cells) from [index, value] pairs.
  * @param {Array<[number, string]>} entries
  * @returns {(string|null)[]}
  */
 function createFlightGrid(entries) {
-  const grid = new Array(25).fill(null);
+  const grid = new Array(24).fill(null);
   entries.forEach(([index, value]) => {
-    grid[index] = value;
+    if (index >= 0 && index < grid.length) {
+      grid[index] = value;
+    }
   });
   return grid;
 }

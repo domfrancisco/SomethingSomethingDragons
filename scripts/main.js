@@ -95,8 +95,8 @@ function getCurrentFlightCard() {
 // ── Flight grid ───────────────────────────────────────────────────────────────
 
 const flightCard = {
-  columns: "ABCDE".split(""),
-  rows: Array.from({ length: 5 }, (_, i) => i + 1),
+  columns: "ABCDEF".split(""),
+  rows: Array.from({ length: 4 }, (_, i) => i + 1),
 };
 
 function createGridLabel(value, className) {
@@ -162,7 +162,7 @@ function renderFlightGrid() {
     flightCard.rows.forEach((row) => {
       fragment.append(createGridLabel(String(row).padStart(2, "0"), "grid-coordinate"));
       flightCard.columns.forEach((column, colIndex) => {
-        const cellIndex = (row - 1) * 5 + colIndex;
+        const cellIndex = (row - 1) * flightCard.columns.length + colIndex;
         const content = cardData.grid[cellIndex];
         const coordinate = `${column}${String(row).padStart(2, "0")}`;
         fragment.append(createGridCell(coordinate, content));
@@ -275,7 +275,7 @@ function renderDeckIndicator() {
 // ── Action card deck state ────────────────────────────────────────────────────
 
 /** All color classes that may be on an action card shell. */
-const COLOR_CLASSES = ["action-card-red", "action-card-orange", "action-card-green", "action-card-blue", "action-card-pink"];
+const COLOR_CLASSES = ["action-card-red", "action-card-orange", "action-card-green", "action-card-blue", "action-card-pink", "action-card-colorless"];
 
 /** Current draw pile — starts as a shuffled copy of defaultDeck.cards. */
 let drawPile = shuffleDeck(defaultDeck);
@@ -290,7 +290,7 @@ let currentActionCardIds = [];
  * Draws the next `count` cards from the pile.
  * Reshuffles automatically when the pile is exhausted.
  * @param {number} count
- * @returns {{ id: string, text: string, color: string }[]}
+ * @returns {{ id: string, title: string, text: string, color: string }[]}
  */
 function drawCards(count) {
   // Keep draw/discard visuals in a single cycle: if the next hand would cross
@@ -311,7 +311,7 @@ function drawCards(count) {
 
 /**
  * Renders an array of card definitions into the action card DOM slots.
- * @param {{ id: string, text: string, color: string }[]} cards
+ * @param {{ id: string, title: string, text: string, color: string }[]} cards
  */
 function renderActionCards(cards) {
   currentActionCardIds = cards.filter(Boolean).map((card) => card.id);
@@ -325,14 +325,14 @@ function renderActionCards(cards) {
     shell.classList.add(`action-card-${cardData.color}`);
 
     // Update aria-label.
-    shell.setAttribute("aria-label", cardData.text);
+    shell.setAttribute("aria-label", `${cardData.title}: ${cardData.text}`);
 
     // Update title overlay.
     const titleEl = shell.querySelector(".action-title");
     if (titleEl) {
-      titleEl.setAttribute("aria-label", "Action Card");
-      titleEl.querySelector(".action-title-space").textContent = "Action Card";
-      titleEl.querySelector(".action-title-discovery").textContent = "Action Card";
+      titleEl.setAttribute("aria-label", cardData.title);
+      titleEl.querySelector(".action-title-space").textContent = cardData.title;
+      titleEl.querySelector(".action-title-discovery").textContent = cardData.title;
     }
 
     // Update body text.
@@ -402,13 +402,13 @@ function triggerFlipThenRender(cards) {
 
       COLOR_CLASSES.forEach((cls) => card.classList.remove(cls));
       card.classList.add(`action-card-${cardData.color}`);
-      card.setAttribute("aria-label", cardData.text);
+      card.setAttribute("aria-label", `${cardData.title}: ${cardData.text}`);
 
       const titleEl = card.querySelector(".action-title");
       if (titleEl) {
-        titleEl.setAttribute("aria-label", "Action Card");
-        titleEl.querySelector(".action-title-space").textContent = "Action Card";
-        titleEl.querySelector(".action-title-discovery").textContent = "Action Card";
+        titleEl.setAttribute("aria-label", cardData.title);
+        titleEl.querySelector(".action-title-space").textContent = cardData.title;
+        titleEl.querySelector(".action-title-discovery").textContent = cardData.title;
       }
 
       const bodyEl = card.querySelector(".action-card-body > p");

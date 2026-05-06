@@ -67,7 +67,7 @@ function getDeckCounts(deck) {
 /**
  * Resolves a card id to its full definition from ACTION_CARD_DEFINITIONS.
  * @param {string} cardId
- * @returns {{ id: string, text: string, color: string } | undefined}
+ * @returns {{ id: string, title: string, text: string, color: string, power: number, count: number, resource: string, boostCount: number|null, boostResource: string|null, count2: number|null, resource2: string|null } | undefined}
  */
 function getCard(cardId) {
   return ACTION_CARD_DEFINITIONS[cardId];
@@ -96,10 +96,7 @@ function shuffleDeck(deck) {
   return shuffleArray([...deck.cards]);
 }
 
-/**
- * Default deck - 30 cards.
- * attack_1 x8, move_1 x8, attack_2 x4, move_2 x4, heal_1 x3, freeze_1 x2, blast x1
- */
+/** Default deck - 30 cards from a static weighted ACTION_DEFAULT_DECK_CARD_IDS list. */
 const defaultDeck = createDeck("Default");
 
 ACTION_DEFAULT_DECK_CARD_IDS.forEach((id) => addCardToDeck(defaultDeck, id));

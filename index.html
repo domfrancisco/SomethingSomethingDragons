@@ -66,10 +66,15 @@
             <span class="fly-btn-space" aria-hidden="true">Fly</span>
             <span class="fly-btn-discovery" aria-hidden="true">Fly</span>
           </button>
-          <button type="button" class="deck-btn" aria-label="Deck">
-            <span class="deck-btn-space" aria-hidden="true">Deck</span>
-            <span class="deck-btn-discovery" aria-hidden="true">Deck</span>
-          </button>
+          <div class="deck-controls">
+            <label class="deck-color-select-shell" for="deckColorSelect" aria-label="Action deck color">
+              <select id="deckColorSelect" class="deck-color-select" aria-label="Action deck color"></select>
+            </label>
+            <button type="button" class="deck-btn" aria-label="Deck">
+              <span class="deck-btn-space" aria-hidden="true">Deck</span>
+              <span class="deck-btn-discovery" aria-hidden="true">Deck</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -94,6 +99,7 @@
   </main>
 
   <script src="./scripts/action-card-data.js" defer></script>
+  <script src="./scripts/action-deck-data.js" defer></script>
   <script src="./scripts/action-cards.js" defer></script>
   <script src="./scripts/flight-card-data.js" defer></script>
   <script src="./scripts/flight-cards.js" defer></script>

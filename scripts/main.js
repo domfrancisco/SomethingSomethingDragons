@@ -1,5 +1,6 @@
 const flyButton = document.querySelector(".fly-btn");
 const deckButton = document.querySelector(".deck-btn");
+const deckColorSelect = document.getElementById("deckColorSelect");
 const actionCardsPanel = document.querySelector(".action-cards-panel");
 const deckIndicatorShell = actionCardsPanel?.querySelector(".deck-indicator-shell") ?? null;
 const deckStackVisual = document.getElementById("deckStackVisual");
@@ -99,6 +100,13 @@ const flightCard = {
   rows: Array.from({ length: 4 }, (_, i) => i + 1),
 };
 
+const FLIGHT_ICON_IMAGE_BY_KEY = Object.freeze({
+  enemy1: "./img/enemy_ph1.png",
+  enemy2: "./img/enemy_ph2.png",
+  enemy3: "./img/enemy_ph3.png",
+  apple: "./img/apple_ph.png",
+});
+
 function createGridLabel(value, className) {
   const label = document.createElement("div");
   label.className = className;
@@ -130,11 +138,23 @@ function createGridCell(coordinate, content) {
   cell.dataset.coordinate = coordinate;
   if (content) {
     cell.classList.add("has-icon");
-    cell.textContent = content;
-    cell.style.fontSize = "1.5rem";
     cell.style.display = "flex";
     cell.style.alignItems = "center";
     cell.style.justifyContent = "center";
+
+    const imageSource = FLIGHT_ICON_IMAGE_BY_KEY[content];
+    if (imageSource) {
+      const icon = document.createElement("img");
+      icon.className = "grid-cell-icon";
+      icon.src = imageSource;
+      icon.alt = "";
+      icon.setAttribute("aria-hidden", "true");
+      icon.loading = "lazy";
+      cell.append(icon);
+    } else {
+      cell.textContent = content;
+      cell.style.fontSize = "1.5rem";
+    }
   }
   return cell;
 }
@@ -277,8 +297,41 @@ function renderDeckIndicator() {
 /** All color classes that may be on an action card shell. */
 const COLOR_CLASSES = ["action-card-red", "action-card-orange", "action-card-green", "action-card-blue", "action-card-pink", "action-card-colorless"];
 
+function buildDeckColorOptions() {
+  if (!deckColorSelect) return;
+
+  const fragment = document.createDocumentFragment();
+  ACTION_DECK_DATABASE.forEach((deckEntry, index) => {
+    const option = document.createElement("option");
+    option.value = deckEntry.key;
+    option.textContent = deckEntry.label;
+
+    if (index === 0 || deckEntry.key === "green") {
+      option.selected = true;
+    }
+
+    fragment.append(option);
+  });
+
+  deckColorSelect.replaceChildren(fragment);
+}
+
+buildDeckColorOptions();
+
+function normalizeDeckKey(deckKey) {
+  if (deckKey === "default") {
+    return "green";
+  }
+  return Object.prototype.hasOwnProperty.call(ACTION_DECK_CARD_IDS_BY_KEY, deckKey)
+    ? deckKey
+    : "green";
+}
+
+let activeActionDeckKey = normalizeDeckKey(deckColorSelect?.value ?? "green");
+let activeActionDeck = getActionDeckByKey(activeActionDeckKey);
+
 /** Current draw pile — starts as a shuffled copy of defaultDeck.cards. */
-let drawPile = shuffleDeck(defaultDeck);
+let drawPile = shuffleDeck(activeActionDeck);
 
 /** Index of the next card to draw from drawPile. */
 let drawIndex = 0;
@@ -296,7 +349,7 @@ function drawCards(count) {
   // Keep draw/discard visuals in a single cycle: if the next hand would cross
   // the end of the deck, start a fresh shuffled cycle before drawing.
   if (drawIndex + count > drawPile.length) {
-    drawPile = shuffleDeck(defaultDeck);
+    drawPile = shuffleDeck(activeActionDeck);
     drawIndex = 0;
     discardedCount = 0;
   }
@@ -467,7 +520,7 @@ function resetFlightState() {
 }
 
 function resetActionState() {
-  drawPile = shuffleDeck(defaultDeck);
+  drawPile = shuffleDeck(activeActionDeck);
   drawIndex = 0;
   discardedCount = 0;
   isAnimating = false;
@@ -480,6 +533,7 @@ function resetActionState() {
 
 function saveGameState() {
   const state = {
+    actionDeckKey: activeActionDeckKey,
     drawPile,
     drawIndex,
     discardedCount,
@@ -505,6 +559,12 @@ function loadGameState() {
   }
 
   if (!state || typeof state !== "object") return false;
+
+  activeActionDeckKey = normalizeDeckKey(state.actionDeckKey);
+  activeActionDeck = getActionDeckByKey(activeActionDeckKey);
+  if (deckColorSelect) {
+    deckColorSelect.value = activeActionDeckKey;
+  }
 
   if (Array.isArray(state.drawPile)) {
     drawPile = state.drawPile.filter((id) => Boolean(getCard(id)));
@@ -591,6 +651,24 @@ function resetGameState() {
   resetActionState();
 }
 
+function applySelectedDeck(deckKey) {
+  activeActionDeckKey = normalizeDeckKey(deckKey);
+  activeActionDeck = getActionDeckByKey(activeActionDeckKey);
+  drawPile = shuffleDeck(activeActionDeck);
+  drawIndex = 0;
+  discardedCount = 0;
+  isAnimating = false;
+  pendingCards = null;
+
+  if (deckColorSelect) {
+    deckColorSelect.value = activeActionDeckKey;
+  }
+
+  const nextCards = drawCards(actionCards.length);
+  renderActionCards(nextCards);
+  renderDeckIndicator();
+}
+
 // ── Initialise ────────────────────────────────────────────────────────────────
 
 setActionCardFlipOrder();
@@ -598,9 +676,17 @@ setActionCardFlipOrder();
 // Load first 5 cards immediately on page load (no animation).
 // Load first flight stack on page load.
 startNewFlightDeck();
-renderActionCards(drawCards(actionCards.length));
-renderDeckIndicator();
+applySelectedDeck(activeActionDeckKey);
 loadGameState();
+
+if (deckColorSelect) {
+  deckColorSelect.addEventListener("change", (event) => {
+    const selectedDeckKey = event.target instanceof HTMLSelectElement
+      ? event.target.value
+      : "green";
+    applySelectedDeck(selectedDeckKey);
+  });
+}
 
 if (deckButton) {
   deckButton.addEventListener("click", () => {

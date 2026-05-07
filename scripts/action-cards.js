@@ -67,7 +67,7 @@ function getDeckCounts(deck) {
 /**
  * Resolves a card id to its full definition from ACTION_CARD_DEFINITIONS.
  * @param {string} cardId
- * @returns {{ id: string, title: string, text: string, color: string, power: number, count: number, resource: string, boostCount: number|null, boostResource: string|null, count2: number|null, resource2: string|null } | undefined}
+ * @returns {{ id: string, title: string, text: string, color: string, power: number, count: number|null, resource: string|null, boostCount: number|null, boostResource: string|null, count2: number|null, resource2: string|null, boostCount2: number|null, boostResource2: string|null, count3: number|null, resource3: string|null, count4: number|null, resource4: string|null } | undefined}
  */
 function getCard(cardId) {
   return ACTION_CARD_DEFINITIONS[cardId];
@@ -96,10 +96,24 @@ function shuffleDeck(deck) {
   return shuffleArray([...deck.cards]);
 }
 
-/** Default deck - 30 cards from a static weighted ACTION_DEFAULT_DECK_CARD_IDS list. */
-const defaultDeck = createDeck("Default");
+function createDeckFromCardIds(name, cardIds) {
+  const deck = createDeck(name);
+  cardIds.forEach((id) => addCardToDeck(deck, id));
+  return deck;
+}
 
-ACTION_DEFAULT_DECK_CARD_IDS.forEach((id) => addCardToDeck(defaultDeck, id));
+const ACTION_DECKS_BY_KEY = Object.freeze(
+  ACTION_DECK_DATABASE.reduce((acc, deckEntry) => {
+    acc[deckEntry.key] = createDeckFromCardIds(deckEntry.label, deckEntry.cardIds);
+    return acc;
+  }, {})
+);
+
+function getActionDeckByKey(deckKey) {
+  return ACTION_DECKS_BY_KEY[deckKey] ?? ACTION_DECKS_BY_KEY.green;
+}
+
+const defaultDeck = ACTION_DECKS_BY_KEY.green;
 
 function createActionCardShell() {
   const article = document.createElement("article");

@@ -349,7 +349,7 @@ body {
   background: radial-gradient(circle at 32% 24%, var(--card-light) 0%, var(--card-mid-1) 32%, var(--card-mid-2) 70%, var(--card-dark) 100%);
   border: 8px solid rgba(255, 255, 255, 0.92);
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   transform-origin: top left;
   transform-style: preserve-3d;
   backface-visibility: hidden;
@@ -405,7 +405,7 @@ body {
 .action-card-content {
   --action-gap: 6px;
   --action-image-height: clamp(92px, 30%, 150px);
-  --action-title-height: 30px;
+  --action-title-height: 25px;
   width: 100%;
   height: 100%;
   border-radius: 4px;
@@ -413,6 +413,8 @@ body {
   padding: 0;
   box-sizing: border-box;
   color: var(--text-main);
+  position: relative;
+  overflow: visible;
 }
 
 .eyebrow {
@@ -565,7 +567,7 @@ h2 {
   width: 100%;
   box-sizing: border-box;
   height: var(--action-title-height);
-  font-size: 12pt;
+  font-size: 14pt;
   line-height: 1.1;
   color: transparent;
   background-color: var(--card-mid-2);
@@ -575,7 +577,7 @@ h2 {
   background-position: center;
   border-radius: 4px 4px 0 0;
   padding: var(--action-gap);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .action-card-image {
@@ -593,15 +595,21 @@ h2 {
 .action-title-space,
 .action-title-discovery {
   position: absolute;
-  inset: var(--action-gap);
-  display: block;
-  line-height: 18px;
-  font-size: inherit;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  font-size: 10pt;
   font-style: normal;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
+  line-height: 1;
+  padding-left: var(--action-gap);
 }
 
 .action-title-space {
@@ -612,6 +620,48 @@ h2 {
 .action-title-discovery {
   font-family: "discovery", sans-serif;
   color: #f4f7f1;
+}
+
+.action-power-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.action-power-badge-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35.4px;
+  height: 35.4px;
+  background-color: #d7c19a;
+  background-image:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.28) 0, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 82% 16%, rgba(120, 82, 38, 0.14) 0, rgba(120, 82, 38, 0) 28%),
+    linear-gradient(180deg, rgba(244, 229, 192, 0.92) 0%, rgba(215, 193, 154, 0.96) 48%, rgba(196, 168, 124, 0.98) 100%);
+  border: 5px solid var(--card-mid-1);
+  border-radius: 50%;
+}
+
+.action-power-badge-number {
+  position: relative;
+  top: -3px;
+  font-size: 18pt;
+  font-weight: 700;
+  font-family: "cc-frostbite-block", sans-serif;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.action-power-badge-number::after {
+  content: attr(data-number);
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  font-family: "cc-frostbite-melt", sans-serif;
+  color: #222631;
 }
 
 .action-card-body {
@@ -632,14 +682,86 @@ h2 {
   margin: var(--action-gap);
   height: calc(100% - (2 * var(--action-gap)));
   box-sizing: border-box;
-  overflow: auto;
+  overflow: hidden;
   font-size: 8pt;
   line-height: 1.3;
   background-color: transparent;
   border: 2px solid var(--card-mid-1);
   border-radius: 4px;
-  padding: 4px;
+  padding: 3px;
   color: #2b2114;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.resource-pair {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 700;
+  font-size: 14pt;
+}
+
+.resource-pair span {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.resource-icon {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+}
+
+.resource-icon-wrap {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+.resource-icon-wrap .resource-icon {
+  position: relative;
+  z-index: 1;
+}
+
+/* Colored backing square shows card color through transparent area
+   of card.png. Native icon is 90x90; square is 38x48 at (26,34). */
+.card-icon-bg {
+  position: absolute;
+  left: calc(26 / 90 * 100%);
+  top: calc(34 / 90 * 100%);
+  width: calc(38 / 90 * 100%);
+  height: calc(48 / 90 * 100%);
+  background: var(--card-mid-1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.resource-divider-inline {
+  margin: 0 1px;
+}
+
+.resource-divider {
+  color: #2b2114;
+  font-weight: 700;
+  margin: 0 1px;
+}
+
+.resource-divider-hr {
+  width: 100%;
+  height: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1px 0;
+  padding: 0;
 }
 
 .flight-card-footer {
@@ -671,7 +793,7 @@ h2 {
 .flight-title {
   position: relative;
   display: inline-block;
-  font-size: 16pt;
+  font-size: 14pt;
   line-height: 1;
 }
 

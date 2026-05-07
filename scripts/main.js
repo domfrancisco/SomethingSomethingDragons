@@ -301,12 +301,14 @@ function buildDeckColorOptions() {
   if (!deckColorSelect) return;
 
   const fragment = document.createDocumentFragment();
-  ACTION_DECK_DATABASE.forEach((deckEntry, index) => {
+  const sortedDecks = [...ACTION_DECK_DATABASE].sort((a, b) => a.label.localeCompare(b.label));
+  
+  sortedDecks.forEach((deckEntry) => {
     const option = document.createElement("option");
     option.value = deckEntry.key;
     option.textContent = deckEntry.label;
 
-    if (index === 0 || deckEntry.key === "green") {
+    if (deckEntry.key === "green") {
       option.selected = true;
     }
 
@@ -363,6 +365,81 @@ function drawCards(count) {
 }
 
 /**
+ * Formats card resources into HTML display.
+ * @param {{ count: number|null, resource: string|null, boostCount: number|null, boostResource: string|null, count2: number|null, resource2: string|null, boostCount2: number|null, boostResource2: string|null }} cardData
+ * @returns {string} HTML string with formatted resources
+ */
+function formatCardResources(cardData) {
+  const resourceImagePath = './img/';
+
+  // Helper to render the icon portion for a resource. Some resources are
+  // composed of multiple icons (e.g. damagePerCard) or use a different
+  // image than their resource key (e.g. draw -> card.png).
+  function renderResourceIcon(resource) {
+    if (!resource) return '';
+    if (resource === 'damagePerCard') {
+      return `<img src="${resourceImagePath}damage.png" alt="damage" class="resource-icon" onerror="this.style.display='none'" />`
+        + `<span class="resource-divider resource-divider-inline">|</span>`
+        + `<span class="resource-icon-wrap"><span class="card-icon-bg"></span><img src="${resourceImagePath}card.png" alt="card" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
+    }
+    // damagePer{Color} -> damage icon | colored card icon
+    const perColorMatch = /^damagePer([A-Z][a-zA-Z]+)$/.exec(resource);
+    if (perColorMatch) {
+      const color = perColorMatch[1].toLowerCase();
+      return `<img src="${resourceImagePath}damage.png" alt="damage" class="resource-icon" onerror="this.style.display='none'" />`
+        + `<span class="resource-divider resource-divider-inline">|</span>`
+        + `<span class="resource-icon-wrap action-card-${color}"><span class="card-icon-bg"></span><img src="${resourceImagePath}card.png" alt="card ${color}" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
+    }
+    if (resource === 'draw') {
+      return `<span class="resource-icon-wrap"><span class="card-icon-bg"></span><img src="${resourceImagePath}card.png" alt="card" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
+    }
+    if (resource === 'kill') {
+      return `<img src="${resourceImagePath}death.png" alt="kill" class="resource-icon" onerror="this.style.display='none'" />`;
+    }
+    return `<img src="${resourceImagePath}${resource}.png" alt="${resource}" class="resource-icon" onerror="this.style.display='none'" />`;
+  }
+
+  // Helper function to format a resource pair
+  function formatResourcePair(count, resource, count2, resource2) {
+    if (count === null || count === undefined || !resource) return '';
+    let html = `<div class="resource-pair"><span>${count}:${renderResourceIcon(resource)}</span>`;
+    if ((count2 !== null && count2 !== undefined) && resource2) {
+      html += ` <span class="resource-divider">/</span> <span>${count2}:${renderResourceIcon(resource2)}</span>`;
+    }
+    html += '</div>';
+    return html;
+  }
+
+  let html = '';
+  
+  // Top line: main resources
+  html += formatResourcePair(cardData.count, cardData.resource, cardData.count2, cardData.resource2);
+  
+  // Diamond HR - only show if both main and boost resources exist
+  const hasMain = (cardData.count !== null && cardData.count !== undefined && cardData.resource);
+  const hasBoost = (cardData.boostCount !== null && cardData.boostCount !== undefined && cardData.boostResource);
+  if (hasMain && hasBoost) {
+    html += `<div class="resource-divider-hr">
+      <svg width="100%" height="4" viewBox="0 0 100 4" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="diamondGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#555555;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#000000;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#333333;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <polygon points="0,2 50,0 100,2 50,4" fill="url(#diamondGradient)" />
+      </svg>
+    </div>`;
+  }
+  
+  // Bottom line: boost resources
+  html += formatResourcePair(cardData.boostCount, cardData.boostResource, cardData.boostCount2, cardData.boostResource2);
+  
+  return html || '<div></div>';
+}
+
+/**
  * Renders an array of card definitions into the action card DOM slots.
  * @param {{ id: string, title: string, text: string, color: string }[]} cards
  */
@@ -386,11 +463,20 @@ function renderActionCards(cards) {
       titleEl.setAttribute("aria-label", cardData.title);
       titleEl.querySelector(".action-title-space").textContent = cardData.title;
       titleEl.querySelector(".action-title-discovery").textContent = cardData.title;
+
+      // Update power badge.
+      const powerBadgeNumber = titleEl.querySelector(".action-power-badge-number");
+      if (powerBadgeNumber) {
+        powerBadgeNumber.textContent = cardData.power;
+        powerBadgeNumber.setAttribute("data-number", cardData.power);
+      }
     }
 
-    // Update body text.
+    // Update body with resources.
     const bodyEl = shell.querySelector(".action-card-body > p");
-    if (bodyEl) bodyEl.textContent = cardData.text;
+    if (bodyEl) {
+      bodyEl.innerHTML = formatCardResources(cardData);
+    }
 
     // Set random image background.
     const imageEl = shell.querySelector(".action-card-image");
@@ -462,10 +548,17 @@ function triggerFlipThenRender(cards) {
         titleEl.setAttribute("aria-label", cardData.title);
         titleEl.querySelector(".action-title-space").textContent = cardData.title;
         titleEl.querySelector(".action-title-discovery").textContent = cardData.title;
+
+        // Update power badge.
+        const powerBadgeNumber = titleEl.querySelector(".action-power-badge-number");
+        if (powerBadgeNumber) {
+          powerBadgeNumber.textContent = cardData.power;
+          powerBadgeNumber.setAttribute("data-number", cardData.power);
+        }
       }
 
       const bodyEl = card.querySelector(".action-card-body > p");
-      if (bodyEl) bodyEl.textContent = cardData.text;
+      if (bodyEl) bodyEl.innerHTML = formatCardResources(cardData);
     }, midpointMs);
 
     card.addEventListener("animationend", function onEnd(event) {

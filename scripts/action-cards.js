@@ -134,6 +134,19 @@ function createActionCardShell() {
 
   title.append(titleSpace, titleDiscovery);
 
+  const powerBadge = document.createElement("div");
+  powerBadge.className = "action-power-badge";
+
+  const powerBadgeCircle = document.createElement("div");
+  powerBadgeCircle.className = "action-power-badge-circle";
+
+  const powerBadgeNumber = document.createElement("div");
+  powerBadgeNumber.className = "action-power-badge-number";
+
+  powerBadgeCircle.append(powerBadgeNumber);
+  powerBadge.append(powerBadgeCircle);
+  title.append(powerBadge);
+
   const image = document.createElement("div");
   image.className = "action-card-image";
 

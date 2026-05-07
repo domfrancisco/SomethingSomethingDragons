@@ -33,7 +33,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "green_1",
     title: "green_1",
-    text: "Deal 3 damage and deal 2 damage.",
+    text: null,
     power: 1,
     color: "green",
     count: 3,
@@ -44,7 +44,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "green_2",
     title: "green_2",
-    text: "Gain 2 speed and deal 4 damage.",
+    text: null,
     power: 2,
     color: "green",
     count: 2,
@@ -55,7 +55,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "green_3",
     title: "green_3",
-    text: "Deal 2 damage, then deal 1 damage.",
+    text: null,
     power: 3,
     color: "green",
     count: 2,
@@ -66,7 +66,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "green_4",
     title: "green_4",
-    text: "Gain 4 speed and gain 4 speed.",
+    text: null,
     power: 4,
     color: "green",
     count: 4,
@@ -77,7 +77,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "green_5",
     title: "green_5",
-    text: "Deal 5 damage and draw 1 card.",
+    text: null,
     power: 6,
     color: "green",
     count: 5,
@@ -88,7 +88,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "colorless_1",
     title: "colorless_1",
-    text: "Deal 1 damage.",
+    text: null,
     power: 0,
     color: "colorless",
     count: 1,
@@ -97,7 +97,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "colorless_2",
     title: "colorless_2",
-    text: "Deal 2 damage.",
+    text: null,
     power: 1,
     color: "colorless",
     count: 2,
@@ -106,7 +106,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "colorless_3",
     title: "colorless_3",
-    text: "Gain 1 speed.",
+    text: null,
     power: 0,
     color: "colorless",
     count: 1,
@@ -115,7 +115,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "colorless_4",
     title: "colorless_4",
-    text: "Gain 2 speed.",
+    text: null,
     power: 1,
     color: "colorless",
     count: 2,
@@ -124,7 +124,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "colorless_5",
     title: "colorless_5",
-    text: "Gain 2 speed and deal 2 damage.",
+    text: null,
     power: 2,
     color: "colorless",
     count: 2,
@@ -137,7 +137,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_1",
     title: "orange_1",
-    text: "Gain 2 speed and gain 6 health.",
+    text: null,
     power: 1,
     color: "orange",
     count: 2,
@@ -148,7 +148,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_2",
     title: "orange_2",
-    text: "Gain 2 speed, gain 1 speed, gain 3 health, and gain 1 health.",
+    text: null,
     power: 2,
     color: "orange",
     count: 2,
@@ -163,7 +163,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_3",
     title: "orange_3",
-    text: "Deal 5 damage, deal 2 damage, and gain 6 health.",
+    text: null,
     power: 3,
     color: "orange",
     count: 5,
@@ -176,7 +176,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_4",
     title: "orange_4",
-    text: "Deal 3 damage and deal 1 damage per orange card played.",
+    text: null,
     power: 4,
     color: "orange",
     count: 3,
@@ -187,7 +187,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_4_2",
     title: "orange_4_2",
-    text: "Deal 5 damage and gain 5 health.",
+    text: null,
     power: 4,
     color: "orange",
     count: 5,
@@ -198,7 +198,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_5",
     title: "orange_5",
-    text: "Deal 3 damage, gain 4 health, gain 2 speed, and draw 1 card.",
+    text: null,
     power: 5,
     color: "orange",
     count: 3,
@@ -213,7 +213,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_6",
     title: "orange_6",
-    text: "Gain 5 health, deal 5 damage, and draw 2 cards.",
+    text: null,
     power: 6,
     color: "orange",
     count: 5,
@@ -226,7 +226,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "orange_7",
     title: "orange_7",
-    text: "Deal 6 damage and gain 6 health.",
+    text: null,
     power: 7,
     color: "orange",
     count: 6,
@@ -239,7 +239,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_1",
     title: "blue_1",
-    text: "Gain 2 speed and deal 4 damage.",
+    text: null,
     power: 1,
     color: "blue",
     count: 2,
@@ -250,7 +250,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_2",
     title: "blue_2",
-    text: "Deal 5 damage and gain 2 speed.",
+    text: null,
     power: 2,
     color: "blue",
     count: 5,
@@ -261,7 +261,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_3",
     title: "blue_3",
-    text: "Gain 3 speed and draw 1 card.",
+    text: null,
     power: 3,
     color: "blue",
     count: 3,
@@ -272,7 +272,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_3_2",
     title: "blue_3_2",
-    text: "Draw 1 card and kill 1 enemy on the card.",
+    text: null,
     power: 3,
     color: "blue",
     count: 1,
@@ -283,7 +283,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_4",
     title: "blue_4",
-    text: "Deal 7 damage.",
+    text: null,
     power: 4,
     color: "blue",
     count: 7,
@@ -292,7 +292,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_5",
     title: "blue_5",
-    text: "Draw 1 card, gain 2 mana, and gain 2 speed.",
+    text: null,
     power: 5,
     color: "blue",
     count: 1,
@@ -305,7 +305,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_6",
     title: "blue_6",
-    text: "Deal 6 damage and gain 2 mana.",
+    text: null,
     power: 6,
     color: "blue",
     count: 6,
@@ -316,7 +316,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "blue_8",
     title: "blue_8",
-    text: "Deal 8 damage, deal 5 damage, and draw 1 card.",
+    text: null,
     power: 8,
     color: "blue",
     count: 8,
@@ -331,7 +331,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "red_1",
     title: "red_1",
-    text: "Deal 2 damage, deal 2 damage, and lose 1 mana.",
+    text: null,
     power: 1,
     color: "red",
     count: 2,
@@ -344,7 +344,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "red_2",
     title: "red_2",
-    text: "Gain 3 speed and deal 2 damage.",
+    text: null,
     power: 2,
     color: "red",
     count: 3,
@@ -355,7 +355,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "red_3",
     title: "red_3",
-    text: "Deal 4 damage, deal 3 damage, and lose 1 mana.",
+    text: null,
     power: 3,
     color: "red",
     count: 4,
@@ -368,7 +368,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "red_4",
     title: "red_4",
-    text: "Deal 7 damage and draw 1 card.",
+    text: null,
     power: 4,
     color: "red",
     count: 7,
@@ -379,7 +379,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "red_5",
     title: "red_5",
-    text: "Gain 3 speed, deal 6 damage, and lose 1 mana.",
+    text: null,
     power: 5,
     color: "red",
     count: 3,
@@ -392,7 +392,7 @@ const ACTION_CARD_ROWS = Object.freeze([
   {
     id: "red_6",
     title: "red_6",
-    text: "Deal 8 damage, draw 2 cards, and lose 1 mana.",
+    text: null,
     power: 6,
     color: "red",
     count: 8,

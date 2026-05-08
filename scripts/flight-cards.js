@@ -84,8 +84,10 @@ function createFlightCardContainer(index) {
   const boomCount = document.createElement("p");
   boomCount.className = "flight-card-boom-count";
 
-  const boomIcon = document.createElement("span");
+  const boomIcon = document.createElement("img");
   boomIcon.className = "boom-icon";
+  boomIcon.src = "./img/damage.png";
+  boomIcon.alt = "";
   boomIcon.setAttribute("aria-hidden", "true");
 
   boomGroup.append(boomCount, boomIcon);

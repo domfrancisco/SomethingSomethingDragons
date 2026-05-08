@@ -10,6 +10,10 @@ const flightCardsStack = document.querySelector(".flight-cards-stack");
 const saveStateButton = document.getElementById("menuSaveState");
 const loadStateButton = document.getElementById("menuLoadState");
 const resetStateButton = document.getElementById("menuResetState");
+const autodrawButton = document.getElementById("menuAutodraw");
+
+/** Whether action cards with a main-row draw resource auto-draw. */
+let autodrawEnabled = true;
 
 const STORAGE_KEY = "something-something-dragons.state.v1";
 const TARGET_FLIGHT_STACK_SIZE = FLIGHT_STACK_SLOT_COUNT;
@@ -37,8 +41,13 @@ function initializeCardShells() {
 
 initializeCardShells();
 
-const actionCards = Array.from(document.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)"));
+let actionCards = Array.from(document.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)"));
 let flightCardContainers = Array.from(document.querySelectorAll(".flight-card-container"));
+
+/** Re-query action card shells after any DOM mutation. */
+function refreshActionCardShells() {
+  actionCards = Array.from(document.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)"));
+}
 
 function applyFlightStackOffsets() {
   const total = flightCardContainers.length;
@@ -146,11 +155,27 @@ function createGridCell(coordinate, content) {
     if (imageSource) {
       const icon = document.createElement("img");
       icon.className = "grid-cell-icon";
+      if (content === "apple") {
+        icon.classList.add("grid-cell-icon-fit");
+      }
       icon.src = imageSource;
       icon.alt = "";
       icon.setAttribute("aria-hidden", "true");
       icon.loading = "lazy";
       cell.append(icon);
+      if (content !== "apple") {
+        const badges = document.createElement("div");
+        badges.className = "grid-cell-badges";
+        badges.setAttribute("aria-hidden", "true");
+        badges.innerHTML =
+          '<span class="grid-cell-badge grid-cell-badge-circle"></span>'
+          + '<span class="grid-cell-badge grid-cell-badge-shield">'
+          + '<svg viewBox="0 0 24 28" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+          + '<path d="M12 1 L23 4 V14 C23 21 18 26 12 27 C6 26 1 21 1 14 V4 Z" '
+          + 'fill="#e5e7eb" stroke="#1f2937" stroke-width="2" stroke-linejoin="round"/>'
+          + '</svg></span>';
+        cell.append(badges);
+      }
     } else {
       cell.textContent = content;
       cell.style.fontSize = "1.5rem";
@@ -235,17 +260,17 @@ function startNewFlightDeck() {
 
 // ── Deck indicator state ──────────────────────────────────────────────────
 
-/** Cards that have been drawn and discarded (no longer displayed). */
-let discardedCount = 0;
+/** Card IDs that have been discarded (no longer displayed). */
+let discardPile = [];
 
 /**
  * Renders the deck and discard piles as stacked rectangles.
- * Currently displayed cards (5) are not shown in either stack.
+ * Currently displayed cards are not shown in either stack.
  */
 function renderDeckIndicator() {
   // Calculate remaining cards in current draw pile
   const cardsRemaining = Math.max(0, drawPile.length - drawIndex);
-  const cardsInDiscard = Math.max(0, Math.min(discardedCount, DECK_MAX_SIZE));
+  const cardsInDiscard = Math.max(0, Math.min(discardPile.length, DECK_MAX_SIZE));
   
   // Clear existing stacks
   deckStackVisual.replaceChildren();
@@ -343,25 +368,60 @@ let currentActionCardIds = [];
 
 /**
  * Draws the next `count` cards from the pile.
- * Reshuffles automatically when the pile is exhausted.
+ * If the draw pile runs out mid-draw, the discard pile is shuffled
+ * back into a fresh draw pile and drawing continues.
+ * Returns fewer cards if the deck and discard combined are exhausted.
  * @param {number} count
  * @returns {{ id: string, title: string, text: string, color: string }[]}
  */
 function drawCards(count) {
-  // Keep draw/discard visuals in a single cycle: if the next hand would cross
-  // the end of the deck, start a fresh shuffled cycle before drawing.
-  if (drawIndex + count > drawPile.length) {
-    drawPile = shuffleDeck(activeActionDeck);
-    drawIndex = 0;
-    discardedCount = 0;
-  }
-
   const drawn = [];
-  for (let i = 0; i < count; i++) {
+  while (drawn.length < count) {
+    if (drawIndex >= drawPile.length) {
+      if (discardPile.length === 0) break;
+      drawPile = shuffleArray([...discardPile]);
+      discardPile = [];
+      drawIndex = 0;
+    }
     const cardId = drawPile[drawIndex++];
     drawn.push(getCard(cardId));
   }
   return drawn;
+}
+
+/**
+ * Returns the total number of "draw" resource pips on the MAIN row only.
+ * Boost-row draw pips are click-only and never auto-drawn.
+ */
+function getMainDrawCountForCard(cardData) {
+  if (!cardData) return 0;
+  let total = 0;
+  if (cardData.resource === "draw" && typeof cardData.count === "number" && cardData.count > 0) {
+    total += cardData.count;
+  }
+  if (cardData.resource2 === "draw" && typeof cardData.count2 === "number" && cardData.count2 > 0) {
+    total += cardData.count2;
+  }
+  return total;
+}
+
+/**
+ * Returns the total number of "draw" resource pips on a card,
+ * summing both main and boost rows.
+ */
+function getDrawCountForCard(cardData) {
+  if (!cardData) return 0;
+  const fields = [
+    [cardData.count, cardData.resource],
+    [cardData.count2, cardData.resource2],
+    [cardData.boostCount, cardData.boostResource],
+    [cardData.boostCount2, cardData.boostResource2],
+  ];
+  let total = 0;
+  for (const [c, r] of fields) {
+    if (r === "draw" && typeof c === "number" && c > 0) total += c;
+  }
+  return total;
 }
 
 /**
@@ -375,7 +435,8 @@ function formatCardResources(cardData) {
   // Helper to render the icon portion for a resource. Some resources are
   // composed of multiple icons (e.g. damagePerCard) or use a different
   // image than their resource key (e.g. draw -> card.png).
-  function renderResourceIcon(resource) {
+  // For draw resources, `drawMeta` is { row: "main"|"boost", key: "main"|"main2"|"boost"|"boost2", count: number }.
+  function renderResourceIcon(resource, drawMeta) {
     if (!resource) return '';
     if (resource === 'damagePerCard') {
       return `<img src="${resourceImagePath}damage.png" alt="damage" class="resource-icon" onerror="this.style.display='none'" />`
@@ -391,7 +452,8 @@ function formatCardResources(cardData) {
         + `<span class="resource-icon-wrap action-card-${color}"><span class="card-icon-bg"></span><img src="${resourceImagePath}card.png" alt="card ${color}" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
     }
     if (resource === 'draw') {
-      return `<span class="resource-icon-wrap"><span class="card-icon-bg"></span><img src="${resourceImagePath}card.png" alt="card" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
+      const meta = drawMeta || { row: 'main', key: 'main', count: 1 };
+      return `<span class="resource-icon-wrap draw-pip" data-row="${meta.row}" data-draw-key="${meta.key}" data-draw-count="${meta.count}" role="button" tabindex="0" aria-label="Draw ${meta.count} card${meta.count === 1 ? '' : 's'}"><span class="card-icon-bg"></span><img src="${resourceImagePath}card.png" alt="card" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
     }
     if (resource === 'kill') {
       return `<img src="${resourceImagePath}death.png" alt="kill" class="resource-icon" onerror="this.style.display='none'" />`;
@@ -399,21 +461,24 @@ function formatCardResources(cardData) {
     return `<img src="${resourceImagePath}${resource}.png" alt="${resource}" class="resource-icon" onerror="this.style.display='none'" />`;
   }
 
-  // Helper function to format a resource pair
-  function formatResourcePair(count, resource, count2, resource2) {
+  // Helper function to format a resource pair. `row` is "main" or "boost",
+  // and `keys` provides the draw-key for each slot (e.g. ["main","main2"]).
+  function formatResourcePair(count, resource, count2, resource2, row, keys) {
     if (count === null || count === undefined || !resource) return '';
-    let html = `<div class="resource-pair"><span>${count}:${renderResourceIcon(resource)}</span>`;
+    const meta1 = resource === 'draw' ? { row, key: keys[0], count } : null;
+    let html = `<div class="resource-pair"><span>${count}:${renderResourceIcon(resource, meta1)}</span>`;
     if ((count2 !== null && count2 !== undefined) && resource2) {
-      html += ` <span class="resource-divider">/</span> <span>${count2}:${renderResourceIcon(resource2)}</span>`;
+      const meta2 = resource2 === 'draw' ? { row, key: keys[1], count: count2 } : null;
+      html += ` <span class="resource-divider">/</span> <span>${count2}:${renderResourceIcon(resource2, meta2)}</span>`;
     }
     html += '</div>';
     return html;
   }
 
   let html = '';
-  
+
   // Top line: main resources
-  html += formatResourcePair(cardData.count, cardData.resource, cardData.count2, cardData.resource2);
+  html += formatResourcePair(cardData.count, cardData.resource, cardData.count2, cardData.resource2, 'main', ['main', 'main2']);
   
   // Diamond HR - only show if both main and boost resources exist
   const hasMain = (cardData.count !== null && cardData.count !== undefined && cardData.resource);
@@ -434,7 +499,7 @@ function formatCardResources(cardData) {
   }
   
   // Bottom line: boost resources
-  html += formatResourcePair(cardData.boostCount, cardData.boostResource, cardData.boostCount2, cardData.boostResource2);
+  html += formatResourcePair(cardData.boostCount, cardData.boostResource, cardData.boostCount2, cardData.boostResource2, 'boost', ['boost', 'boost2']);
   
   return html || '<div></div>';
 }
@@ -449,6 +514,8 @@ function renderActionCards(cards) {
   actionCards.forEach((shell, i) => {
     const cardData = cards[i];
     if (!cardData) return;
+
+    shell.dataset.cardId = cardData.id;
 
     // Swap color class.
     COLOR_CLASSES.forEach((cls) => shell.classList.remove(cls));
@@ -521,6 +588,9 @@ function triggerFlipThenRender(cards) {
 
   isAnimating = true;
 
+  // Track the new hand so save/load reflects what is actually displayed.
+  currentActionCardIds = cards.filter(Boolean).map((card) => card.id);
+
   actionCards.forEach((card) => {
     card.classList.remove("is-flipping");
     void card.offsetWidth;
@@ -538,6 +608,8 @@ function triggerFlipThenRender(cards) {
     setTimeout(() => {
       const cardData = cards[i];
       if (!cardData) return;
+
+      card.dataset.cardId = cardData.id;
 
       COLOR_CLASSES.forEach((cls) => card.classList.remove(cls));
       card.classList.add(`action-card-${cardData.color}`);
@@ -575,10 +647,140 @@ function triggerFlipThenRender(cards) {
           const next = pendingCards;
           pendingCards = null;
           triggerFlipThenRender(next);
+        } else {
+          processDrawChain(cards, actionCards.slice(0, cards.length));
         }
       }
     });
   });
+}
+
+/**
+ * Removes any action card shells that were appended dynamically beyond the
+ * base hand size.
+ */
+function removeExtraActionCardShells() {
+  if (!actionCardsPanel) return;
+  const shells = Array.from(actionCardsPanel.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)"));
+  for (let i = ACTION_CARD_SLOT_COUNT; i < shells.length; i++) {
+    shells[i].remove();
+  }
+  refreshActionCardShells();
+  setActionCardFlipOrder();
+}
+
+/**
+ * Populates an action card shell with the given card data.
+ */
+function populateActionCardShell(shell, cardData) {
+  if (!shell || !cardData) return;
+  shell.dataset.cardId = cardData.id;
+  COLOR_CLASSES.forEach((cls) => shell.classList.remove(cls));
+  shell.classList.add(`action-card-${cardData.color}`);
+  shell.setAttribute("aria-label", `${cardData.title}: ${cardData.text}`);
+
+  const titleEl = shell.querySelector(".action-title");
+  if (titleEl) {
+    titleEl.setAttribute("aria-label", cardData.title);
+    const spaceEl = titleEl.querySelector(".action-title-space");
+    const discoveryEl = titleEl.querySelector(".action-title-discovery");
+    if (spaceEl) spaceEl.textContent = cardData.title;
+    if (discoveryEl) discoveryEl.textContent = cardData.title;
+    const powerBadgeNumber = titleEl.querySelector(".action-power-badge-number");
+    if (powerBadgeNumber) {
+      powerBadgeNumber.textContent = cardData.power;
+      powerBadgeNumber.setAttribute("data-number", cardData.power);
+    }
+  }
+
+  const bodyEl = shell.querySelector(".action-card-body > p");
+  if (bodyEl) bodyEl.innerHTML = formatCardResources(cardData);
+
+  const imageEl = shell.querySelector(".action-card-image");
+  if (imageEl) {
+    const randomId = Math.floor(Math.random() * 1000);
+    imageEl.style.backgroundImage = `url('https://picsum.photos/700/500?random=${randomId}')`;
+  }
+}
+
+/**
+ * Appends new action card shells for `cards` and animates a flip-in.
+ * Calls `onComplete` once all flips have finished.
+ */
+function appendActionCardsWithFlip(cards, onComplete) {
+  if (!cards || cards.length === 0) {
+    if (onComplete) onComplete();
+    return;
+  }
+  if (isAnimating) {
+    // Wait for the current animation, then run.
+    setTimeout(() => appendActionCardsWithFlip(cards, onComplete), 60);
+    return;
+  }
+  isAnimating = true;
+
+  const newShells = [];
+  cards.forEach((card) => {
+    const shell = createActionCardShell();
+    populateActionCardShell(shell, card);
+    actionCardsPanel.append(shell);
+    newShells.push(shell);
+  });
+
+  refreshActionCardShells();
+  setActionCardFlipOrder();
+  currentActionCardIds.push(...cards.map((c) => c.id));
+
+  let settled = 0;
+  newShells.forEach((shell) => {
+    void shell.offsetWidth;
+    shell.classList.add("is-flipping");
+    shell.addEventListener("animationend", function onEnd(event) {
+      if (event.animationName !== "action-card-diagonal-flip") return;
+      shell.classList.remove("is-flipping");
+      shell.removeEventListener("animationend", onEnd);
+      settled++;
+      if (settled === newShells.length) {
+        renderDeckIndicator();
+        isAnimating = false;
+        if (onComplete) onComplete();
+      }
+    });
+  });
+}
+
+/**
+ * Marks the main-row draw pips on the given shells as consumed so they no
+ * longer glow or respond to clicks. Returns nothing.
+ */
+function markMainDrawPipsConsumed(shells) {
+  shells.forEach((shell) => {
+    shell.querySelectorAll('.draw-pip[data-row="main"]').forEach((pip) => {
+      pip.classList.add('consumed');
+      pip.setAttribute('aria-disabled', 'true');
+      pip.removeAttribute('role');
+      pip.removeAttribute('tabindex');
+    });
+  });
+}
+
+/**
+ * Walks rendered cards, drawing extra cards for each main-row "draw" pip and
+ * recursing on the newly added cards. Only runs when autodraw is enabled.
+ * Boost-row draws are click-only and never auto-drawn.
+ */
+function processDrawChain(renderedCards, renderedShells) {
+  if (!autodrawEnabled) return;
+  if (!renderedCards || renderedCards.length === 0) return;
+  const totalDraws = renderedCards.reduce((s, c) => s + getMainDrawCountForCard(c), 0);
+  if (totalDraws <= 0) return;
+  const newCards = drawCards(totalDraws);
+  if (newCards.length === 0) return;
+  // Mark the source shells' main draw pips as consumed.
+  if (renderedShells && renderedShells.length) {
+    markMainDrawPipsConsumed(renderedShells);
+  }
+  appendActionCardsWithFlip(newCards, (newShells) => processDrawChain(newCards, newShells));
 }
 
 function setFlyButtonText(text) {
@@ -615,13 +817,15 @@ function resetFlightState() {
 function resetActionState() {
   drawPile = shuffleDeck(activeActionDeck);
   drawIndex = 0;
-  discardedCount = 0;
+  discardPile = [];
   isAnimating = false;
   pendingCards = null;
+  removeExtraActionCardShells();
 
   const initialCards = drawCards(actionCards.length);
   renderActionCards(initialCards);
   renderDeckIndicator();
+  processDrawChain(initialCards, actionCards.slice(0, initialCards.length));
 }
 
 function saveGameState() {
@@ -629,7 +833,7 @@ function saveGameState() {
     actionDeckKey: activeActionDeckKey,
     drawPile,
     drawIndex,
-    discardedCount,
+    discardPile,
     currentActionCardIds,
     currentFlightDeck,
     activeFlightCards,
@@ -667,8 +871,10 @@ function loadGameState() {
     drawIndex = Math.max(0, Math.min(Math.floor(state.drawIndex), drawPile.length));
   }
 
-  if (typeof state.discardedCount === "number") {
-    discardedCount = Math.max(0, Math.floor(state.discardedCount));
+  if (Array.isArray(state.discardPile)) {
+    discardPile = state.discardPile.filter((id) => Boolean(getCard(id)));
+  } else {
+    discardPile = [];
   }
 
   if (Array.isArray(state.currentActionCardIds)) {
@@ -676,7 +882,14 @@ function loadGameState() {
       .map((id) => getCard(id))
       .filter(Boolean);
 
-    if (loadedCards.length === actionCards.length) {
+    if (loadedCards.length > 0) {
+      removeExtraActionCardShells();
+      const extraNeeded = loadedCards.length - ACTION_CARD_SLOT_COUNT;
+      for (let i = 0; i < extraNeeded; i++) {
+        actionCardsPanel.append(createActionCardShell());
+      }
+      refreshActionCardShells();
+      setActionCardFlipOrder();
       renderActionCards(loadedCards);
     }
   }
@@ -749,9 +962,10 @@ function applySelectedDeck(deckKey) {
   activeActionDeck = getActionDeckByKey(activeActionDeckKey);
   drawPile = shuffleDeck(activeActionDeck);
   drawIndex = 0;
-  discardedCount = 0;
+  discardPile = [];
   isAnimating = false;
   pendingCards = null;
+  removeExtraActionCardShells();
 
   if (deckColorSelect) {
     deckColorSelect.value = activeActionDeckKey;
@@ -760,6 +974,7 @@ function applySelectedDeck(deckKey) {
   const nextCards = drawCards(actionCards.length);
   renderActionCards(nextCards);
   renderDeckIndicator();
+  processDrawChain(nextCards, actionCards.slice(0, nextCards.length));
 }
 
 // ── Initialise ────────────────────────────────────────────────────────────────
@@ -783,8 +998,14 @@ if (deckColorSelect) {
 
 if (deckButton) {
   deckButton.addEventListener("click", () => {
-    // Cards currently displayed are being discarded.
-    discardedCount += actionCards.length;
+    if (isAnimating) return;
+    // Discard everything currently in hand (including any extras drawn from
+    // the "draw" resource on previous cards).
+    discardPile.push(...currentActionCardIds);
+    currentActionCardIds = [];
+    removeExtraActionCardShells();
+    // drawCards handles partial draws and reshuffling the discard pile when
+    // the draw pile alone cannot satisfy the request.
     triggerFlipThenRender(drawCards(actionCards.length));
   });
 }
@@ -847,4 +1068,94 @@ if (loadStateButton) {
 if (resetStateButton) {
   resetStateButton.addEventListener("click", resetGameState);
 }
+
+// ── Autodraw toggle ─────────────────────────────────────────────────────────
+function setAutodrawState(enabled) {
+  autodrawEnabled = !!enabled;
+  document.body.classList.toggle('autodraw-off', !autodrawEnabled);
+  if (autodrawButton) {
+    const label = autodrawEnabled ? 'Autodraw: On' : 'Autodraw: Off';
+    autodrawButton.dataset.autodraw = autodrawEnabled ? 'on' : 'off';
+    const labelWrap = autodrawButton.querySelector('.menu-item-label');
+    if (labelWrap) labelWrap.setAttribute('aria-label', label);
+    const spaceEl = autodrawButton.querySelector('.menu-item-space');
+    const discoveryEl = autodrawButton.querySelector('.menu-item-discovery');
+    if (spaceEl) spaceEl.textContent = label;
+    if (discoveryEl) discoveryEl.textContent = label;
+  }
+}
+
+if (autodrawButton) {
+  autodrawButton.addEventListener('click', () => {
+    setAutodrawState(!autodrawEnabled);
+    // If we just turned autodraw on, fire any unconsumed main-row pips.
+    if (autodrawEnabled) {
+      processOutstandingMainDrawPips();
+    }
+  });
+}
+
+// ── Clickable draw pips ────────────────────────────────────────────────────
+function handleDrawPipActivate(pip) {
+  if (!pip || pip.classList.contains('consumed')) return;
+  if (isAnimating) return;
+  const count = Math.max(0, parseInt(pip.dataset.drawCount || '0', 10));
+  if (count <= 0) return;
+  const newCards = drawCards(count);
+  if (newCards.length === 0) return;
+  pip.classList.add('consumed');
+  pip.setAttribute('aria-disabled', 'true');
+  pip.removeAttribute('role');
+  pip.removeAttribute('tabindex');
+  appendActionCardsWithFlip(newCards, (newShells) => {
+    // Newly drawn cards may also have main-row draw pips; if autodraw is on,
+    // chain them automatically; if off, leave them glowing for the user.
+    if (autodrawEnabled) {
+      processDrawChain(newCards, newShells);
+    }
+  });
+}
+
+/**
+ * Fires every unconsumed main-row draw pip currently in the hand. Used when
+ * autodraw is toggled from off to on so pending pips resolve immediately.
+ */
+function processOutstandingMainDrawPips() {
+  if (!actionCardsPanel) return;
+  const pips = Array.from(actionCardsPanel.querySelectorAll('.draw-pip[data-row="main"]:not(.consumed)'));
+  if (pips.length === 0) return;
+  let total = 0;
+  pips.forEach((pip) => {
+    total += Math.max(0, parseInt(pip.dataset.drawCount || '0', 10));
+    pip.classList.add('consumed');
+    pip.setAttribute('aria-disabled', 'true');
+    pip.removeAttribute('role');
+    pip.removeAttribute('tabindex');
+  });
+  if (total <= 0) return;
+  const newCards = drawCards(total);
+  if (newCards.length === 0) return;
+  appendActionCardsWithFlip(newCards, (newShells) => processDrawChain(newCards, newShells));
+}
+
+if (actionCardsPanel) {
+  actionCardsPanel.addEventListener('click', (event) => {
+    const pip = event.target.closest('.draw-pip');
+    if (pip && actionCardsPanel.contains(pip)) {
+      event.preventDefault();
+      handleDrawPipActivate(pip);
+    }
+  });
+  actionCardsPanel.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const pip = event.target.closest('.draw-pip');
+    if (pip && actionCardsPanel.contains(pip)) {
+      event.preventDefault();
+      handleDrawPipActivate(pip);
+    }
+  });
+}
+
+// Initialise autodraw state to On.
+setAutodrawState(true);
 

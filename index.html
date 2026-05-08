@@ -49,6 +49,12 @@
             <span class="menu-item-discovery">Reset</span>
           </span>
         </button>
+        <button id="menuAutodraw" type="button" class="menu-item" data-autodraw="on">
+          <span class="menu-item-label" aria-label="Autodraw: On">
+            <span class="menu-item-space">Autodraw: On</span>
+            <span class="menu-item-discovery">Autodraw: On</span>
+          </span>
+        </button>
       </div>
     </div>
   </header>
@@ -74,26 +80,26 @@
               <span class="deck-btn-space" aria-hidden="true">Deck</span>
               <span class="deck-btn-discovery" aria-hidden="true">Deck</span>
             </button>
+            <article class="deck-indicator-shell">
+              <section class="panel deck-indicator-content">
+                <div class="deck-stacks">
+                  <div class="deck-stack">
+                    <div id="deckStackVisual" class="stack-visual" aria-label="Remaining deck cards"></div>
+                  </div>
+                  <div class="discard-stack">
+                    <div id="discardStackVisual" class="stack-visual" aria-label="Discarded cards"></div>
+                  </div>
+                </div>
+                <div class="deck-counter">
+                  <span id="deckCounter" class="counter-text">30/30</span>
+                </div>
+              </section>
+            </article>
           </div>
         </div>
       </div>
 
       <div class="action-cards-panel" aria-label="Action cards">
-        <article class="app-shell action-card-shell deck-indicator-shell">
-          <section class="panel deck-indicator-content">
-            <div class="deck-stacks">
-              <div class="deck-stack">
-                <div id="deckStackVisual" class="stack-visual" aria-label="Remaining deck cards"></div>
-              </div>
-              <div class="discard-stack">
-                <div id="discardStackVisual" class="stack-visual" aria-label="Discarded cards"></div>
-              </div>
-            </div>
-            <div class="deck-counter">
-              <span id="deckCounter" class="counter-text">30/30</span>
-            </div>
-          </section>
-        </article>
       </div>
     </div>
   </main>

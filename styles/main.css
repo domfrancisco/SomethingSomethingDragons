@@ -326,6 +326,7 @@ body {
 }
 
 .action-cards-panel {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--action-grid-gap);
@@ -579,6 +580,7 @@ h2 {
   border-radius: 4px 4px 0 0;
   padding: var(--action-gap);
   overflow: visible;
+  cursor: pointer;
 }
 
 .action-card-image {
@@ -1383,119 +1385,119 @@ input:focus {
 }
 
 .card-rect:nth-child(2) {
-  transform: translateX(-1px) translateY(2px);
+  transform: translateX(-1px) translateY(-2px);
 }
 
 .card-rect:nth-child(3) {
-  transform: translateX(-2px) translateY(4px);
+  transform: translateX(-2px) translateY(-4px);
 }
 
 .card-rect:nth-child(4) {
-  transform: translateX(-3px) translateY(6px);
+  transform: translateX(-3px) translateY(-6px);
 }
 
 .card-rect:nth-child(5) {
-  transform: translateX(-4px) translateY(8px);
+  transform: translateX(-4px) translateY(-8px);
 }
 
 .card-rect:nth-child(6) {
-  transform: translateX(-5px) translateY(10px);
+  transform: translateX(-5px) translateY(-10px);
 }
 
 .card-rect:nth-child(7) {
-  transform: translateX(-6px) translateY(12px);
+  transform: translateX(-6px) translateY(-12px);
 }
 
 .card-rect:nth-child(8) {
-  transform: translateX(-7px) translateY(14px);
+  transform: translateX(-7px) translateY(-14px);
 }
 
 .card-rect:nth-child(9) {
-  transform: translateX(-8px) translateY(16px);
+  transform: translateX(-8px) translateY(-16px);
 }
 
 .card-rect:nth-child(10) {
-  transform: translateX(-9px) translateY(18px);
+  transform: translateX(-9px) translateY(-18px);
 }
 
 .card-rect:nth-child(11) {
-  transform: translateX(-10px) translateY(20px);
+  transform: translateX(-10px) translateY(-20px);
 }
 
 .card-rect:nth-child(12) {
-  transform: translateX(-11px) translateY(22px);
+  transform: translateX(-11px) translateY(-22px);
 }
 
 .card-rect:nth-child(13) {
-  transform: translateX(-12px) translateY(24px);
+  transform: translateX(-12px) translateY(-24px);
 }
 
 .card-rect:nth-child(14) {
-  transform: translateX(-13px) translateY(26px);
+  transform: translateX(-13px) translateY(-26px);
 }
 
 .card-rect:nth-child(15) {
-  transform: translateX(-14px) translateY(28px);
+  transform: translateX(-14px) translateY(-28px);
 }
 
 .card-rect:nth-child(16) {
-  transform: translateX(-15px) translateY(30px);
+  transform: translateX(-15px) translateY(-30px);
 }
 
 .card-rect:nth-child(17) {
-  transform: translateX(-16px) translateY(32px);
+  transform: translateX(-16px) translateY(-32px);
 }
 
 .card-rect:nth-child(18) {
-  transform: translateX(-17px) translateY(34px);
+  transform: translateX(-17px) translateY(-34px);
 }
 
 .card-rect:nth-child(19) {
-  transform: translateX(-18px) translateY(36px);
+  transform: translateX(-18px) translateY(-36px);
 }
 
 .card-rect:nth-child(20) {
-  transform: translateX(-19px) translateY(38px);
+  transform: translateX(-19px) translateY(-38px);
 }
 
 .card-rect:nth-child(21) {
-  transform: translateX(-20px) translateY(40px);
+  transform: translateX(-20px) translateY(-40px);
 }
 
 .card-rect:nth-child(22) {
-  transform: translateX(-21px) translateY(42px);
+  transform: translateX(-21px) translateY(-42px);
 }
 
 .card-rect:nth-child(23) {
-  transform: translateX(-22px) translateY(44px);
+  transform: translateX(-22px) translateY(-44px);
 }
 
 .card-rect:nth-child(24) {
-  transform: translateX(-23px) translateY(46px);
+  transform: translateX(-23px) translateY(-46px);
 }
 
 .card-rect:nth-child(25) {
-  transform: translateX(-24px) translateY(48px);
+  transform: translateX(-24px) translateY(-48px);
 }
 
 .card-rect:nth-child(26) {
-  transform: translateX(-25px) translateY(50px);
+  transform: translateX(-25px) translateY(-50px);
 }
 
 .card-rect:nth-child(27) {
-  transform: translateX(-26px) translateY(52px);
+  transform: translateX(-26px) translateY(-52px);
 }
 
 .card-rect:nth-child(28) {
-  transform: translateX(-27px) translateY(54px);
+  transform: translateX(-27px) translateY(-54px);
 }
 
 .card-rect:nth-child(29) {
-  transform: translateX(-28px) translateY(56px);
+  transform: translateX(-28px) translateY(-56px);
 }
 
 .card-rect:nth-child(30) {
-  transform: translateX(-29px) translateY(58px);
+  transform: translateX(-29px) translateY(-58px);
 }
 
 .deck-counter {
@@ -1518,7 +1520,7 @@ input:focus {
 @keyframes reveal {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    transform: translateY(-8px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -1603,4 +1605,111 @@ input:focus {
   .flight-card-boom-count {
     font-size: 1.1rem;
   }
+}
+
+
+/* -- Discard dialog ---------------------------------------------------- */
+
+@keyframes action-card-discard-flip {
+  0% {
+    opacity: 1;
+    transform: perspective(900px) rotate3d(1, 1, 0, 0deg) scale(1);
+  }
+  60% {
+    opacity: 0.85;
+    transform: perspective(900px) rotate3d(1, 1, 0, 180deg) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: perspective(900px) rotate3d(1, 1, 0, 360deg) scale(0.4);
+  }
+}
+
+.action-card-shell.is-discarding {
+  animation: action-card-discard-flip 520ms cubic-bezier(0.4, 0.1, 0.3, 1) forwards;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.discard-dialog-overlay {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  background: rgba(10, 18, 30, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-radius: 8px;
+  animation: discard-dialog-fade 160ms ease-out;
+}
+
+@keyframes discard-dialog-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.discard-dialog-box {
+  min-width: min(320px, 88%);
+  max-width: 92%;
+  padding: 18px 22px 16px;
+  background: #fdfaf2;
+  background-image:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.6) 0, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(180deg, rgba(244, 229, 192, 0.96) 0%, rgba(215, 193, 154, 0.98) 100%);
+  border: 2px solid rgba(40, 26, 12, 0.65);
+  border-radius: 10px;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.35),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.7);
+  text-align: center;
+  color: #2b2114;
+}
+
+.discard-dialog-message {
+  margin: 0 0 14px;
+  font-size: 12pt;
+  font-weight: 700;
+  font-family: "discovery", sans-serif;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+.discard-dialog-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.discard-dialog-btn {
+  min-width: 78px;
+  padding: 8px 18px;
+  font-size: 11pt;
+  font-weight: 700;
+  font-family: "discovery", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fdfaf2;
+  background: linear-gradient(180deg, #4a6b53 0%, #2f4a38 100%);
+  border: 2px solid #1c2c22;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 80ms ease, filter 120ms ease;
+}
+
+.discard-dialog-btn:hover {
+  filter: brightness(1.12);
+}
+
+.discard-dialog-btn:active {
+  transform: translateY(-1px);
+}
+
+.discard-dialog-btn.discard-dialog-no {
+  background: linear-gradient(180deg, #6b6b6b 0%, #3d3d3d 100%);
+}
+
+.discard-dialog-btn:focus-visible {
+  outline: 2px solid #f4e5c0;
+  outline-offset: 2px;
 }

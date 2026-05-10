@@ -2,7 +2,9 @@
 // Loaded before any module that consumes them.
 
 const flyButton = document.querySelector(".fly-btn");
-const deckButton = document.querySelector(".deck-btn");
+const deckButton = document.querySelector(".deck-btn:not(.deck-btn-draw-top):not(.deck-btn-draw-bottom)");
+const drawTopButton = document.querySelector(".deck-btn-draw-top");
+const drawBottomButton = document.querySelector(".deck-btn-draw-bottom");
 const deckColorSelect = document.getElementById("deckColorSelect");
 const actionCardsPanel = document.querySelector(".action-cards-panel");
 const deckIndicatorShell = actionCardsPanel?.querySelector(".deck-indicator-shell") ?? null;

@@ -77,6 +77,9 @@ if (deckButton) {
     discardPile.push(...currentActionCardIds);
     currentActionCardIds = [];
     removeExtraActionCardShells();
+    // Re-instate any shells that were removed by discards so the hand is
+    // dealt back to the full base slot count.
+    ensureBaseActionCardShells();
 
     const slotCount = actionCards.length;
     const remainingInPile = Math.max(0, drawPile.length - drawIndex);
@@ -122,12 +125,33 @@ if (deckButton) {
   });
 }
 
+/**
+ * Draws a single card and appends it to the hand without discarding the
+ * existing hand. `source` is "top" or "bottom" and chooses the draw side.
+ */
+function drawSingleCardToHand(source) {
+  if (typeof isAnimating !== "undefined" && isAnimating) return;
+  const newCards = source === "bottom" ? drawBottomCards(1) : drawCards(1);
+  if (newCards.length === 0) return;
+  appendActionCardsWithFlip(newCards, (newShells) => {
+    renderDeckIndicator();
+    if (autodrawEnabled) processDrawChain(newCards, newShells);
+  });
+}
+
+if (drawTopButton) {
+  drawTopButton.addEventListener("click", () => drawSingleCardToHand("top"));
+}
+
+if (drawBottomButton) {
+  drawBottomButton.addEventListener("click", () => drawSingleCardToHand("bottom"));
+}
+
 if (flyButton) {
   flyButton.addEventListener("click", () => {
     if (isFlightAnimating) return;
 
     const topIndex = getTopVisibleCardIndex();
-
     if (topIndex === -1) {
       if (nextFlightDeckIndex >= currentFlightDeck.length) {
         startNewFlightDeck();

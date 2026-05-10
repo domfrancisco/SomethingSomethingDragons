@@ -132,16 +132,30 @@ function createGridCell(coordinate, content) {
   cell.append(icon);
 
   if (content !== "apple") {
+    const monster = (typeof getMonsterDefinition === "function")
+      ? getMonsterDefinition(content)
+      : null;
+    const circleBg = monster && MONSTER_BADGE_COLORS[monster.color]
+      ? MONSTER_BADGE_COLORS[monster.color]
+      : "#e5e7eb";
+    const powerText = monster ? String(monster.power) : "";
+    const defenseText = monster ? String(monster.defense) : "";
+
     const badges = document.createElement("div");
     badges.className = "grid-cell-badges";
     badges.setAttribute("aria-hidden", "true");
     badges.innerHTML =
-      '<span class="grid-cell-badge grid-cell-badge-circle"></span>'
+      '<span class="grid-cell-badge grid-cell-badge-circle"'
+      + ` style="background:${circleBg};">`
+      + `<span class="grid-cell-badge-number">${powerText}</span>`
+      + '</span>'
       + '<span class="grid-cell-badge grid-cell-badge-shield">'
       + '<svg viewBox="0 0 24 28" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
       + '<path d="M12 1 L23 4 V14 C23 21 18 26 12 27 C6 26 1 21 1 14 V4 Z" '
       + 'fill="#e5e7eb" stroke="#1f2937" stroke-width="2" stroke-linejoin="round"/>'
-      + '</svg></span>';
+      + '</svg>'
+      + `<span class="grid-cell-badge-number grid-cell-badge-number-shield">${defenseText}</span>`
+      + '</span>';
     cell.append(badges);
   }
   return cell;

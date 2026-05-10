@@ -73,6 +73,27 @@ function drawCards(count) {
   return drawn;
 }
 
+/**
+ * Draws a single card from the BOTTOM of the draw pile. Reshuffles the
+ * discard pile in if the draw pile is empty. Returns an array (possibly
+ * empty) for parity with `drawCards`.
+ */
+function drawBottomCards(count) {
+  const drawn = [];
+  while (drawn.length < count) {
+    if (drawIndex >= drawPile.length) {
+      if (discardPile.length === 0) break;
+      drawPile = shuffleArray([...discardPile]);
+      discardPile = [];
+      drawIndex = 0;
+    }
+    // Bottom = last entry in the live remaining slice of drawPile.
+    const cardId = drawPile.pop();
+    drawn.push(getCard(cardId));
+  }
+  return drawn;
+}
+
 // ── Draw-resource counting ─────────────────────────────────────────────────
 
 /**

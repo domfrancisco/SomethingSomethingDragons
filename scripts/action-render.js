@@ -36,6 +36,28 @@ function removeExtraActionCardShells() {
   setActionCardFlipOrder();
 }
 
+/**
+ * Ensures the panel has at least `ACTION_CARD_SLOT_COUNT` non-indicator
+ * shells, appending blank shells before the deck indicator if any have been
+ * removed (e.g. by discarding cards from the hand).
+ */
+function ensureBaseActionCardShells() {
+  if (!actionCardsPanel) return;
+  const existing = actionCardsPanel.querySelectorAll(".action-card-shell:not(.deck-indicator-shell)").length;
+  const missing = ACTION_CARD_SLOT_COUNT - existing;
+  if (missing <= 0) return;
+  for (let i = 0; i < missing; i++) {
+    const shell = createActionCardShell();
+    if (deckIndicatorShell && deckIndicatorShell.parentNode === actionCardsPanel) {
+      actionCardsPanel.insertBefore(shell, deckIndicatorShell);
+    } else {
+      actionCardsPanel.append(shell);
+    }
+  }
+  refreshActionCardShells();
+  setActionCardFlipOrder();
+}
+
 // ── Resource icon HTML ─────────────────────────────────────────────────────
 
 const RESOURCE_IMAGE_PATH = "./img/";

@@ -67,9 +67,14 @@ function positionDiscardDialog(dialog) {
 }
 
 /** Builds the dialog DOM and returns the root element. */
-function buildDiscardDialog(cardTitle) {
+function buildDiscardDialog(cardTitle, cardColor) {
   const overlay = document.createElement("div");
   overlay.className = "discard-dialog-overlay";
+  if (cardColor) {
+    // Inherits --card-light/--card-mid-*/--card-dark tokens so the Yes
+    // button can be themed to match the source card's color.
+    overlay.classList.add(`action-card-${cardColor}`);
+  }
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
   overlay.setAttribute("aria-label", `Discard ${cardTitle}?`);
@@ -149,7 +154,7 @@ function openDiscardDialog(shell) {
   if (!cardData) return;
 
   pendingDiscardShell = shell;
-  const { overlay, yesBtn, noBtn } = buildDiscardDialog(cardData.title);
+  const { overlay, yesBtn, noBtn } = buildDiscardDialog(cardData.title, cardData.color);
   activeDiscardDialog = overlay;
   actionCardsPanel.classList.add("has-discard-dialog");
   actionCardsPanel.append(overlay);

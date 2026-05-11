@@ -147,6 +147,38 @@ if (drawBottomButton) {
   drawBottomButton.addEventListener("click", () => drawSingleCardToHand("bottom"));
 }
 
+/**
+ * Shuffles the remaining (un-drawn) portion of the draw pile in place. The
+ * discard pile is left untouched. Plays a brief visual pulse on the deck
+ * stack so the user can tell the shuffle happened.
+ */
+function shuffleRemainingDrawPile() {
+  if (typeof isAnimating !== "undefined" && isAnimating) return;
+  const remainingCount = drawPile.length - drawIndex;
+  // Always trigger the visual indicator so the click feels acknowledged
+  // even if there is 0 or 1 card left to shuffle.
+  if (remainingCount > 1) {
+    const remaining = drawPile.slice(drawIndex);
+    shuffleArray(remaining);
+    drawPile = drawPile.slice(0, drawIndex).concat(remaining);
+  }
+  triggerShuffleIndicator();
+}
+
+function triggerShuffleIndicator() {
+  if (!deckStackVisual) return;
+  deckStackVisual.classList.remove("is-shuffling");
+  // Force reflow so removing + re-adding restarts the animation.
+  void deckStackVisual.offsetWidth;
+  deckStackVisual.classList.add("is-shuffling");
+  // Clean up after the animation so subsequent clicks can re-trigger.
+  setTimeout(() => deckStackVisual.classList.remove("is-shuffling"), 700);
+}
+
+if (shuffleDeckButton) {
+  shuffleDeckButton.addEventListener("click", shuffleRemainingDrawPile);
+}
+
 if (flyButton) {
   flyButton.addEventListener("click", () => {
     if (isFlightAnimating) return;

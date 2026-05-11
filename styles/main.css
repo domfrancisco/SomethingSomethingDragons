@@ -1063,11 +1063,79 @@ body.autodraw-off .draw-pip[data-row="main"]:not(.consumed) {
   transform: translateY(0);
 }
 
-.deck-btn-draw-top span,
-.deck-btn-draw-bottom span {
-  font-size: 10.5pt;
-  letter-spacing: 0.04em;
-  padding: 0 0.4rem;
+/* -- Deck icon button row --------------------------------------------- */
+
+.deck-icon-row {
+  display: flex;
+  gap: 0.35rem;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.deck-icon-btn {
+  position: relative;
+  flex: 1 1 0;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  padding: 0.25rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.65);
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease,
+              background 180ms ease, transform 180ms ease;
+}
+
+.deck-icon-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+
+.deck-icon-btn:hover {
+  border-color: rgba(245, 158, 11, 0.8);
+  background: linear-gradient(135deg, #facc15 0%, #f59e0b 55%, #fb923c 100%);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25),
+              0 8px 18px rgba(245, 158, 11, 0.25);
+  transform: translateY(-1px);
+}
+
+.deck-icon-btn:focus-visible {
+  border-color: rgba(245, 158, 11, 0.9);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+  outline: none;
+}
+
+.deck-icon-btn:active {
+  transform: translateY(0);
+}
+
+/* -- Shuffle visual indicator ----------------------------------------- */
+
+.stack-visual.is-shuffling {
+  animation: deck-shuffle-pulse 600ms ease-out;
+}
+
+.stack-visual.is-shuffling .card-rect {
+  animation: deck-shuffle-jitter 600ms ease-in-out;
+}
+
+@keyframes deck-shuffle-pulse {
+  0%   { filter: none; }
+  20%  { filter: drop-shadow(0 0 6px rgba(245, 200, 80, 0.95)) brightness(1.25); }
+  60%  { filter: drop-shadow(0 0 4px rgba(245, 200, 80, 0.7))  brightness(1.12); }
+  100% { filter: none; }
+}
+
+@keyframes deck-shuffle-jitter {
+  0%, 100% { transform: var(--card-rect-base, none) translate(0, 0); }
+  20%      { transform: translate(-2px, -1px) rotate(-3deg); }
+  45%      { transform: translate(2px,  1px) rotate(2deg); }
+  70%      { transform: translate(-1px, 1px) rotate(-1.5deg); }
 }
 
 .flight-card-number {

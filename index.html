@@ -76,18 +76,24 @@
             <label class="deck-color-select-shell" for="deckColorSelect" aria-label="Action deck color">
               <select id="deckColorSelect" class="deck-color-select" aria-label="Action deck color"></select>
             </label>
-            <button type="button" class="deck-btn" aria-label="Deck">
-              <span class="deck-btn-space" aria-hidden="true">Deck</span>
-              <span class="deck-btn-discovery" aria-hidden="true">Deck</span>
-            </button>
-            <button type="button" class="deck-btn deck-btn-draw-top" aria-label="Draw top card">
-              <span class="deck-btn-space" aria-hidden="true">Draw Top Card</span>
-              <span class="deck-btn-discovery" aria-hidden="true">Draw Top Card</span>
-            </button>
-            <button type="button" class="deck-btn deck-btn-draw-bottom" aria-label="Draw bottom card">
-              <span class="deck-btn-space" aria-hidden="true">Draw Bottom Card</span>
-              <span class="deck-btn-discovery" aria-hidden="true">Draw Bottom Card</span>
-            </button>
+            <div class="deck-icon-row" role="group" aria-label="Deck actions">
+              <button type="button" class="deck-icon-btn deck-icon-btn-new-hand"
+                      aria-label="Draw new hand" title="Draw new hand">
+                <img src="./img/draw-new-hand.png" alt="" aria-hidden="true" />
+              </button>
+              <button type="button" class="deck-icon-btn deck-icon-btn-draw-top"
+                      aria-label="Draw top card" title="Draw top card">
+                <img src="./img/draw-top-card.png" alt="" aria-hidden="true" />
+              </button>
+              <button type="button" class="deck-icon-btn deck-icon-btn-draw-bottom"
+                      aria-label="Draw bottom card" title="Draw bottom card">
+                <img src="./img/draw-bottom-card.png" alt="" aria-hidden="true" />
+              </button>
+              <button type="button" class="deck-icon-btn deck-icon-btn-shuffle"
+                      aria-label="Shuffle draw pile" title="Shuffle draw pile">
+                <img src="./img/shuffle-draw-pile.png" alt="" aria-hidden="true" />
+              </button>
+            </div>
             <article class="deck-indicator-shell">
               <section class="panel deck-indicator-content">
                 <div class="deck-stacks">

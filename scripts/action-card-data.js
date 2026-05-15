@@ -27,13 +27,36 @@
  * an inline SVG (currently used for `block`).
  */
 const RESOURCE_ICON_BY_KEY = Object.freeze({
-  attack: "damage",
-  movement: "speed",
-  block: null,
+  attack: "attack",
+  movement: "movement",
+  block: "block",
   draw: "card",
-  healing: "health",
-  magicGain: "mana",
-  selfDamage: "death",
+  healing: "healing",
+  magicGain: "magic",
+  selfDamage: "self-harm",
+});
+
+/**
+ * Non-resource tag icons usable as `{token}` substitutions inside special
+ * text (e.g. {discard}, {boost}, {enemy}).
+ */
+const TAG_ICON_BY_KEY = Object.freeze({
+  discard: "discard",
+  boost: "boost",
+  enemy: "enemy",
+});
+
+/**
+ * Color-name tokens (e.g. {pink}) that render as a colored dot in the
+ * size of the surrounding text with a black outline.
+ */
+const COLOR_DOT_BY_KEY = Object.freeze({
+  red: "#d35353",
+  green: "#62b86a",
+  blue: "#5b9ad8",
+  yellow: "#e6c656",
+  pink: "#f0a8c8",
+  colorless: "#d6d6d6",
 });
 
 /** Stable display order for the main resource row. */
@@ -56,6 +79,7 @@ const RESOURCE_TOKENS = Object.freeze({
   attack: "attack",
   move: "movement",
   movement: "movement",
+  speed: "movement",
   block: "block",
   card: "draw",
   draw: "draw",

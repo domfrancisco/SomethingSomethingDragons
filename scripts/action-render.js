@@ -63,16 +63,6 @@ function ensureBaseActionCardShells() {
 const RESOURCE_IMAGE_PATH = "./img/";
 
 /**
- * Inline SVG fallback used for resource keys that don't yet have a PNG
- * icon (currently only `block`).
- */
-const BLOCK_INLINE_SVG = ''
-  + '<svg viewBox="0 0 24 28" class="resource-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">'
-  + '<path d="M12 1 L23 4 V14 C23 21 18 26 12 27 C6 26 1 21 1 14 V4 Z" '
-  + 'fill="#e5e7eb" stroke="#1f2937" stroke-width="2" stroke-linejoin="round"/>'
-  + '</svg>';
-
-/**
  * Renders the icon HTML for a resource key from the new card schema
  * (e.g. "attack", "movement", "draw"). `drawMeta` is supplied for "draw"
  * resources to wire up the click-to-draw pip:
@@ -88,10 +78,6 @@ function renderResourceIcon(resourceKey, drawMeta) {
       + `data-draw-count="${meta.count}" role="button" tabindex="0" aria-label="Draw ${meta.count} card${plural}">`
       + `<span class="card-icon-bg"></span>`
       + `<img src="${RESOURCE_IMAGE_PATH}card.png" alt="card" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
-  }
-
-  if (resourceKey === "block") {
-    return BLOCK_INLINE_SVG;
   }
 
   const iconBase = (typeof RESOURCE_ICON_BY_KEY !== "undefined" && RESOURCE_ICON_BY_KEY[resourceKey])
@@ -117,19 +103,39 @@ function renderSpecialText(text, row, keyPrefix) {
   let drawIndex = 0;
   return escapeHtml(text).replace(/\{(\w+)\}/g, (full, rawToken) => {
     const token = rawToken.toLowerCase();
+
+    // 1. Resource icon tokens (attack, movement, card, magic, ...).
     const resourceKey = (typeof RESOURCE_TOKENS !== "undefined")
       ? RESOURCE_TOKENS[token]
       : null;
-    if (!resourceKey) {
-      return `<em class="special-token special-token-unknown">${rawToken}</em>`;
+    if (resourceKey) {
+      let meta = null;
+      if (resourceKey === "draw") {
+        const key = drawIndex === 0 ? keyPrefix : `${keyPrefix}${drawIndex + 1}`;
+        meta = { row, key, count: 1 };
+        drawIndex++;
+      }
+      return `<span class="special-token">${renderResourceIcon(resourceKey, meta)}</span>`;
     }
-    let meta = null;
-    if (resourceKey === "draw") {
-      const key = drawIndex === 0 ? keyPrefix : `${keyPrefix}${drawIndex + 1}`;
-      meta = { row, key, count: 1 };
-      drawIndex++;
+
+    // 2. Tag icon tokens (discard, boost, enemy).
+    const tagBase = (typeof TAG_ICON_BY_KEY !== "undefined")
+      ? TAG_ICON_BY_KEY[token]
+      : null;
+    if (tagBase) {
+      return `<span class="special-token"><img src="${RESOURCE_IMAGE_PATH}${tagBase}.png" alt="${token}" class="resource-icon" onerror="this.style.display='none'" /></span>`;
     }
-    return `<span class="special-token">${renderResourceIcon(resourceKey, meta)}</span>`;
+
+    // 3. Color-name tokens render as a colored dot.
+    const dotColor = (typeof COLOR_DOT_BY_KEY !== "undefined")
+      ? COLOR_DOT_BY_KEY[token]
+      : null;
+    if (dotColor) {
+      return `<span class="special-token color-dot" style="background-color:${dotColor}" aria-label="${token}"></span>`;
+    }
+
+    // 4. Unknown — render bracketed word in italic.
+    return `<em class="special-token special-token-unknown">${rawToken}</em>`;
   });
 }
 
@@ -251,18 +257,8 @@ function populateActionCardShell(shell, cardData) {
 
   const imageEl = shell.querySelector(".action-card-image");
   if (imageEl) {
-    // Local card art under img/<color>_<NN>.png with picsum fallback when
-    // a numbered art file is missing.
-    if (cardData.color && cardData.color !== "colorless"
-        && typeof cardData.cardNumber === "number") {
-      const padded = String(cardData.cardNumber).padStart(2, "0");
-      const local = `${RESOURCE_IMAGE_PATH}${cardData.color}_${padded}.png`;
-      const fallback = `https://picsum.photos/700/500?random=${cardData.id}`;
-      imageEl.style.backgroundImage = `url('${local}'), url('${fallback}')`;
-    } else {
-      const fallback = `https://picsum.photos/700/500?random=${cardData.id}`;
-      imageEl.style.backgroundImage = `url('${fallback}')`;
-    }
+    const randomId = Math.floor(Math.random() * 1000);
+    imageEl.style.backgroundImage = `url('https://picsum.photos/700/500?random=${randomId}')`;
   }
 }
 

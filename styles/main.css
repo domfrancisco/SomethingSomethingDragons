@@ -765,16 +765,29 @@ h2 {
 }
 
 /* Colored backing square shows card color through transparent area
-   of card.png. Native icon is 90x90; square is 38x48 at (26,34). */
+   of card.png. Native icon is 300x300; square is 100x100 at (100,100). */
 .card-icon-bg {
   position: absolute;
-  left: calc(26 / 90 * 100%);
-  top: calc(34 / 90 * 100%);
-  width: calc(38 / 90 * 100%);
-  height: calc(48 / 90 * 100%);
+  left: calc(100 / 300 * 100%);
+  top: calc(100 / 300 * 100%);
+  width: calc(100 / 300 * 100%);
+  height: calc(100 / 300 * 100%);
   background: var(--card-mid-1);
   z-index: 0;
   pointer-events: none;
+}
+
+/* Inline color-name token (e.g. {pink}) -> a 1em dot in the color with
+   a thin black outline, baseline-aligned to the surrounding text. */
+.color-dot {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 50%;
+  border: 1px solid #000;
+  vertical-align: -0.1em;
+  margin: 0 0.1em;
+  box-sizing: border-box;
 }
 
 .resource-divider-inline {

@@ -1,67 +1,53 @@
 /**
  * Action deck database definitions.
  *
+ * Each colored deck is built from its 15 unique colored cards plus
+ * colorless filler. Composition: 2 copies of each colored card (= 30) gives
+ * a full deck of the color's cards. Colorless cards are available as
+ * neutral filler should custom decks be added later.
+ *
  * Add new static decks here. The deck selector is generated from this file.
  */
+
+/** Helper: emit `count` copies of `cardId`. */
+function repeatCardId(cardId, count) {
+  return Array(count).fill(cardId);
+}
+
+/** Builds a 30-card deck containing 2 copies of each card in `colorKey`_1..15. */
+function buildPureColorDeck(colorKey) {
+  const ids = [];
+  for (let n = 1; n <= 15; n++) {
+    ids.push(...repeatCardId(`${colorKey}_${n}`, 2));
+  }
+  return ids;
+}
 
 const ACTION_DECK_DATABASE = Object.freeze([
   {
     key: "green",
     label: "Green",
-    cardIds: Object.freeze([
-      // Colorless low-power core.
-      ...Array(6).fill("colorless_1"),
-      ...Array(6).fill("colorless_3"),
-      ...Array(4).fill("colorless_2"),
-      ...Array(4).fill("colorless_4"),
-      ...Array(2).fill("colorless_5"),
-
-      // Smaller green package, still weighted to lower power.
-      ...Array(4).fill("green_1"),
-      ...Array(2).fill("green_2"),
-      ...Array(1).fill("green_3"),
-      ...Array(1).fill("green_4"),
-    ]),
-  },
-  {
-    key: "orange",
-    label: "Orange",
-    cardIds: Object.freeze([
-      ...Array(6).fill("orange_1"),
-      ...Array(5).fill("orange_2"),
-      ...Array(4).fill("orange_3"),
-      ...Array(4).fill("orange_4"),
-      ...Array(3).fill("orange_4_2"),
-      ...Array(3).fill("orange_5"),
-      ...Array(3).fill("orange_6"),
-      ...Array(2).fill("orange_7"),
-    ]),
-  },
-  {
-    key: "blue",
-    label: "Blue",
-    cardIds: Object.freeze([
-      ...Array(6).fill("blue_1"),
-      ...Array(5).fill("blue_2"),
-      ...Array(5).fill("blue_3"),
-      ...Array(3).fill("blue_3_2"),
-      ...Array(4).fill("blue_4"),
-      ...Array(3).fill("blue_5"),
-      ...Array(2).fill("blue_6"),
-      ...Array(2).fill("blue_8"),
-    ]),
+    cardIds: Object.freeze(buildPureColorDeck("green")),
   },
   {
     key: "red",
     label: "Red",
-    cardIds: Object.freeze([
-      ...Array(7).fill("red_1"),
-      ...Array(6).fill("red_2"),
-      ...Array(5).fill("red_3"),
-      ...Array(5).fill("red_4"),
-      ...Array(4).fill("red_5"),
-      ...Array(3).fill("red_6"),
-    ]),
+    cardIds: Object.freeze(buildPureColorDeck("red")),
+  },
+  {
+    key: "blue",
+    label: "Blue",
+    cardIds: Object.freeze(buildPureColorDeck("blue")),
+  },
+  {
+    key: "yellow",
+    label: "Yellow",
+    cardIds: Object.freeze(buildPureColorDeck("yellow")),
+  },
+  {
+    key: "pink",
+    label: "Pink",
+    cardIds: Object.freeze(buildPureColorDeck("pink")),
   },
 ]);
 

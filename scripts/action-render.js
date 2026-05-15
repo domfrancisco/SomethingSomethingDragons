@@ -63,34 +63,25 @@ function ensureBaseActionCardShells() {
 const RESOURCE_IMAGE_PATH = "./img/";
 
 /**
- * Renders the icon HTML for a resource. Some resources are composed of
- * multiple icons (damagePerCard, damagePer{Color}) or use a different
- * image than their key (draw -> card.png, kill -> death.png).
- *
- * For draw resources, `drawMeta` is { row: "main"|"boost",
- * key: "main"|"main2"|"boost"|"boost2", count: number }.
+ * Inline SVG fallback used for resource keys that don't yet have a PNG
+ * icon (currently only `block`).
  */
-function renderResourceIcon(resource, drawMeta) {
-  if (!resource) return "";
+const BLOCK_INLINE_SVG = ''
+  + '<svg viewBox="0 0 24 28" class="resource-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">'
+  + '<path d="M12 1 L23 4 V14 C23 21 18 26 12 27 C6 26 1 21 1 14 V4 Z" '
+  + 'fill="#e5e7eb" stroke="#1f2937" stroke-width="2" stroke-linejoin="round"/>'
+  + '</svg>';
 
-  if (resource === "damagePerCard") {
-    return `<img src="${RESOURCE_IMAGE_PATH}damage.png" alt="damage" class="resource-icon" onerror="this.style.display='none'" />`
-      + `<span class="resource-divider resource-divider-inline">|</span>`
-      + `<span class="resource-icon-wrap"><span class="card-icon-bg"></span>`
-      + `<img src="${RESOURCE_IMAGE_PATH}card.png" alt="card" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
-  }
+/**
+ * Renders the icon HTML for a resource key from the new card schema
+ * (e.g. "attack", "movement", "draw"). `drawMeta` is supplied for "draw"
+ * resources to wire up the click-to-draw pip:
+ *   { row: "main"|"boost", key: "main"|"main2"|"boost"|"boost2", count: number }
+ */
+function renderResourceIcon(resourceKey, drawMeta) {
+  if (!resourceKey) return "";
 
-  // damagePer{Color} -> damage icon | colored card icon
-  const perColorMatch = /^damagePer([A-Z][a-zA-Z]+)$/.exec(resource);
-  if (perColorMatch) {
-    const color = perColorMatch[1].toLowerCase();
-    return `<img src="${RESOURCE_IMAGE_PATH}damage.png" alt="damage" class="resource-icon" onerror="this.style.display='none'" />`
-      + `<span class="resource-divider resource-divider-inline">|</span>`
-      + `<span class="resource-icon-wrap action-card-${color}"><span class="card-icon-bg"></span>`
-      + `<img src="${RESOURCE_IMAGE_PATH}card.png" alt="card ${color}" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
-  }
-
-  if (resource === "draw") {
+  if (resourceKey === "draw") {
     const meta = drawMeta || { row: "main", key: "main", count: 1 };
     const plural = meta.count === 1 ? "" : "s";
     return `<span class="resource-icon-wrap draw-pip" data-row="${meta.row}" data-draw-key="${meta.key}" `
@@ -99,28 +90,47 @@ function renderResourceIcon(resource, drawMeta) {
       + `<img src="${RESOURCE_IMAGE_PATH}card.png" alt="card" class="resource-icon card-icon" onerror="this.style.display='none'" /></span>`;
   }
 
-  if (resource === "kill") {
-    return `<img src="${RESOURCE_IMAGE_PATH}death.png" alt="kill" class="resource-icon" onerror="this.style.display='none'" />`;
+  if (resourceKey === "block") {
+    return BLOCK_INLINE_SVG;
   }
 
-  return `<img src="${RESOURCE_IMAGE_PATH}${resource}.png" alt="${resource}" class="resource-icon" onerror="this.style.display='none'" />`;
+  const iconBase = (typeof RESOURCE_ICON_BY_KEY !== "undefined" && RESOURCE_ICON_BY_KEY[resourceKey])
+    ? RESOURCE_ICON_BY_KEY[resourceKey]
+    : resourceKey;
+  return `<img src="${RESOURCE_IMAGE_PATH}${iconBase}.png" alt="${resourceKey}" class="resource-icon" onerror="this.style.display='none'" />`;
 }
 
 /**
- * Formats a resource pair (e.g. main row or boost row).
- * `row` is "main" or "boost"; `keys` provides the draw-key for each slot
- * (e.g. ["main", "main2"]).
+ * Replaces `{token}` substrings in special-text strings with inline
+ * resource icons. Unknown tokens render as the bracketed word in italic.
+ * `row`/`keyPrefix` lets `{card}`/`{draw}` tokens be wired into the same
+ * draw pip click flow as the numeric pips (so e.g. "Draw 2 {card}" works).
  */
-function formatResourcePair(count, resource, count2, resource2, row, keys) {
-  if (count === null || count === undefined || !resource) return "";
-  const meta1 = resource === "draw" ? { row, key: keys[0], count } : null;
-  let html = `<div class="resource-pair"><span>${count}:${renderResourceIcon(resource, meta1)}</span>`;
-  if ((count2 !== null && count2 !== undefined) && resource2) {
-    const meta2 = resource2 === "draw" ? { row, key: keys[1], count: count2 } : null;
-    html += ` <span class="resource-divider">/</span> <span>${count2}:${renderResourceIcon(resource2, meta2)}</span>`;
-  }
-  html += "</div>";
-  return html;
+function renderSpecialText(text, row, keyPrefix) {
+  if (!text) return "";
+  // Escape HTML in the surrounding text first to prevent injection from
+  // any future user-authored cards. Tokens are always ASCII identifiers.
+  const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+
+  let drawIndex = 0;
+  return escapeHtml(text).replace(/\{(\w+)\}/g, (full, rawToken) => {
+    const token = rawToken.toLowerCase();
+    const resourceKey = (typeof RESOURCE_TOKENS !== "undefined")
+      ? RESOURCE_TOKENS[token]
+      : null;
+    if (!resourceKey) {
+      return `<em class="special-token special-token-unknown">${rawToken}</em>`;
+    }
+    let meta = null;
+    if (resourceKey === "draw") {
+      const key = drawIndex === 0 ? keyPrefix : `${keyPrefix}${drawIndex + 1}`;
+      meta = { row, key, count: 1 };
+      drawIndex++;
+    }
+    return `<span class="special-token">${renderResourceIcon(resourceKey, meta)}</span>`;
+  });
 }
 
 const DIAMOND_HR_HTML = `<div class="resource-divider-hr">
@@ -136,16 +146,75 @@ const DIAMOND_HR_HTML = `<div class="resource-divider-hr">
   </svg>
 </div>`;
 
+/**
+ * Builds the HTML for the main resource row from cardData.resources, in
+ * the order defined by RESOURCE_DISPLAY_ORDER. Skips zero/missing entries.
+ */
+function formatMainResourceRow(cardData) {
+  const resources = cardData.resources || {};
+  const order = (typeof RESOURCE_DISPLAY_ORDER !== "undefined")
+    ? RESOURCE_DISPLAY_ORDER
+    : Object.keys(resources);
+
+  const parts = [];
+  let drawIndex = 0;
+  for (const key of order) {
+    const count = resources[key];
+    if (!count) continue;
+    let meta = null;
+    if (key === "draw") {
+      meta = { row: "main", key: drawIndex === 0 ? "main" : `main${drawIndex + 1}`, count };
+      drawIndex++;
+    }
+    parts.push(`<span>${count}:${renderResourceIcon(key, meta)}</span>`);
+  }
+  if (parts.length === 0) return "";
+  return `<div class="resource-pair">`
+    + parts.join(' <span class="resource-divider">/</span> ')
+    + `</div>`;
+}
+
+/** Builds the boost-row HTML (numeric or special). */
+function formatBoostRow(cardData) {
+  const boost = cardData.boost;
+  if (!boost) return "";
+
+  if (boost.special) {
+    return `<div class="resource-pair resource-pair-special">`
+      + renderSpecialText(boost.special, "boost", "boost")
+      + `</div>`;
+  }
+
+  if (!boost.count || !boost.resource) return "";
+
+  let meta1 = null;
+  if (boost.resource === "draw") meta1 = { row: "boost", key: "boost", count: boost.count };
+  let html = `<div class="resource-pair"><span>${boost.count}:${renderResourceIcon(boost.resource, meta1)}</span>`;
+
+  const boost2 = cardData.boost2;
+  if (boost2 && boost2.count && boost2.resource) {
+    let meta2 = null;
+    if (boost2.resource === "draw") meta2 = { row: "boost", key: "boost2", count: boost2.count };
+    html += ` <span class="resource-divider">/</span> <span>${boost2.count}:${renderResourceIcon(boost2.resource, meta2)}</span>`;
+  }
+  html += "</div>";
+  return html;
+}
+
 /** Formats a card's resource block as HTML. */
 function formatCardResources(cardData) {
-  let html = "";
-  html += formatResourcePair(cardData.count, cardData.resource, cardData.count2, cardData.resource2, "main", ["main", "main2"]);
+  // Special main-row text override.
+  const hasSpecial = !!cardData.special;
+  let html = hasSpecial
+    ? `<div class="resource-pair resource-pair-special">`
+        + renderSpecialText(cardData.special, "main", "main")
+        + `</div>`
+    : formatMainResourceRow(cardData);
 
-  const hasMain = (cardData.count !== null && cardData.count !== undefined && cardData.resource);
-  const hasBoost = (cardData.boostCount !== null && cardData.boostCount !== undefined && cardData.boostResource);
-  if (hasMain && hasBoost) html += DIAMOND_HR_HTML;
-
-  html += formatResourcePair(cardData.boostCount, cardData.boostResource, cardData.boostCount2, cardData.boostResource2, "boost", ["boost", "boost2"]);
+  const hasMain = hasSpecial || (cardData.resources && Object.values(cardData.resources).some((n) => n));
+  const boostHtml = formatBoostRow(cardData);
+  if (hasMain && boostHtml) html += DIAMOND_HR_HTML;
+  html += boostHtml;
   return html || "<div></div>";
 }
 
@@ -157,7 +226,10 @@ function populateActionCardShell(shell, cardData) {
   shell.dataset.cardId = cardData.id;
   COLOR_CLASSES.forEach((cls) => shell.classList.remove(cls));
   shell.classList.add(`action-card-${cardData.color}`);
-  shell.setAttribute("aria-label", `${cardData.title}: ${cardData.text}`);
+  const summary = cardData.special
+    ? cardData.special.replace(/[{}]/g, "")
+    : "";
+  shell.setAttribute("aria-label", `${cardData.title}${summary ? `: ${summary}` : ""}`);
 
   const titleEl = shell.querySelector(".action-title");
   if (titleEl) {
@@ -179,8 +251,18 @@ function populateActionCardShell(shell, cardData) {
 
   const imageEl = shell.querySelector(".action-card-image");
   if (imageEl) {
-    const randomId = Math.floor(Math.random() * 1000);
-    imageEl.style.backgroundImage = `url('https://picsum.photos/700/500?random=${randomId}')`;
+    // Local card art under img/<color>_<NN>.png with picsum fallback when
+    // a numbered art file is missing.
+    if (cardData.color && cardData.color !== "colorless"
+        && typeof cardData.cardNumber === "number") {
+      const padded = String(cardData.cardNumber).padStart(2, "0");
+      const local = `${RESOURCE_IMAGE_PATH}${cardData.color}_${padded}.png`;
+      const fallback = `https://picsum.photos/700/500?random=${cardData.id}`;
+      imageEl.style.backgroundImage = `url('${local}'), url('${fallback}')`;
+    } else {
+      const fallback = `https://picsum.photos/700/500?random=${cardData.id}`;
+      imageEl.style.backgroundImage = `url('${fallback}')`;
+    }
   }
 }
 

@@ -364,11 +364,11 @@ body {
   --card-dark: rgba(82, 21, 28, 0.98);
 }
 
-.action-card-orange {
-  --card-light: rgba(250, 203, 118, 0.58);
-  --card-mid-1: rgba(223, 150, 42, 0.82);
-  --card-mid-2: rgba(154, 94, 20, 0.94);
-  --card-dark: rgba(106, 63, 13, 0.98);
+.action-card-yellow {
+  --card-light: rgba(252, 224, 138, 0.62);
+  --card-mid-1: rgba(228, 178, 56, 0.84);
+  --card-mid-2: rgba(168, 122, 24, 0.94);
+  --card-dark: rgba(112, 79, 16, 0.98);
 }
 
 .action-card-green {
@@ -712,6 +712,36 @@ h2 {
   display: flex;
   align-items: center;
   gap: 1px;
+}
+
+.resource-pair-special {
+  display: block;
+  font-size: 9.5pt;
+  font-weight: 600;
+  line-height: 1.18;
+  text-align: center;
+  padding: 0 0.2rem;
+  letter-spacing: 0;
+}
+
+.resource-pair-special .special-token {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  gap: 0;
+}
+
+.resource-pair-special .resource-icon,
+.resource-pair-special .resource-icon-wrap {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}
+
+.resource-pair-special .special-token-unknown {
+  font-style: italic;
+  color: #f8eedd;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 .resource-icon {

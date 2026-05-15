@@ -6,7 +6,7 @@
 /** All color classes that may be on an action card shell. */
 const COLOR_CLASSES = [
   "action-card-red",
-  "action-card-orange",
+  "action-card-yellow",
   "action-card-green",
   "action-card-blue",
   "action-card-pink",
@@ -102,14 +102,12 @@ function drawBottomCards(count) {
  */
 function getMainDrawCountForCard(cardData) {
   if (!cardData) return 0;
-  let total = 0;
-  if (cardData.resource === "draw" && typeof cardData.count === "number" && cardData.count > 0) {
-    total += cardData.count;
+  // New schema: resources is a map { draw: N, ... }; only the numeric main
+  // row is auto-drawn. Special-text "draw" tokens are click-only.
+  if (cardData.resources && typeof cardData.resources.draw === "number" && cardData.resources.draw > 0) {
+    return cardData.resources.draw;
   }
-  if (cardData.resource2 === "draw" && typeof cardData.count2 === "number" && cardData.count2 > 0) {
-    total += cardData.count2;
-  }
-  return total;
+  return 0;
 }
 
 /**
@@ -118,15 +116,15 @@ function getMainDrawCountForCard(cardData) {
  */
 function getDrawCountForCard(cardData) {
   if (!cardData) return 0;
-  const fields = [
-    [cardData.count, cardData.resource],
-    [cardData.count2, cardData.resource2],
-    [cardData.boostCount, cardData.boostResource],
-    [cardData.boostCount2, cardData.boostResource2],
-  ];
   let total = 0;
-  for (const [c, r] of fields) {
-    if (r === "draw" && typeof c === "number" && c > 0) total += c;
+  if (cardData.resources && typeof cardData.resources.draw === "number" && cardData.resources.draw > 0) {
+    total += cardData.resources.draw;
+  }
+  if (cardData.boost && cardData.boost.resource === "draw" && typeof cardData.boost.count === "number") {
+    total += cardData.boost.count;
+  }
+  if (cardData.boost2 && cardData.boost2.resource === "draw" && typeof cardData.boost2.count === "number") {
+    total += cardData.boost2.count;
   }
   return total;
 }

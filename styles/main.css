@@ -714,6 +714,16 @@ h2 {
   gap: 1px;
 }
 
+/* Nudge the count text down 2px relative to the icon in numeric pairs.
+   Doesn't apply to .resource-pair-special, which has its own layout. */
+.resource-pair:not(.resource-pair-special) > span {
+  padding-top: 2px;
+}
+.resource-pair:not(.resource-pair-special) > span > .resource-icon,
+.resource-pair:not(.resource-pair-special) > span > .resource-icon-wrap {
+  margin-top: -2px;
+}
+
 .resource-pair-special {
   display: block;
   font-size: 9.5pt;
@@ -729,12 +739,16 @@ h2 {
   align-items: center;
   vertical-align: middle;
   gap: 0;
+  /* Pull surrounding text in so it overlaps the icon edge slightly. */
+  margin: 0 -2px;
+  position: relative;
+  top: -2px;
 }
 
 .resource-pair-special .resource-icon,
 .resource-pair-special .resource-icon-wrap {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   vertical-align: middle;
 }
 
@@ -1321,6 +1335,19 @@ body.autodraw-off .draw-pip[data-row="main"]:not(.consumed) {
   gap: 1px;
   z-index: 3;
   pointer-events: none;
+}
+
+/* Special-ability indicator in the top-right of an enemy grid cell. */
+.grid-cell-special {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 14px;
+  height: 14px;
+  display: block;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
 }
 
 .grid-cell-badge {

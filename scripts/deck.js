@@ -24,7 +24,9 @@ function buildDeckColorOptions() {
   sortedDecks.forEach((deckEntry) => {
     const option = document.createElement("option");
     option.value = deckEntry.key;
-    option.textContent = deckEntry.label;
+    option.textContent = (typeof getDeckDisplayLabel === "function")
+      ? getDeckDisplayLabel(deckEntry)
+      : deckEntry.label;
     if (deckEntry.key === "green") option.selected = true;
     fragment.append(option);
   });

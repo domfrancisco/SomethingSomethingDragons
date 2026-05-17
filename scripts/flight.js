@@ -10,11 +10,27 @@ const flightCard = {
 };
 
 const FLIGHT_ICON_IMAGE_BY_KEY = Object.freeze({
-  enemy1: "./img/enemy_ph1.png",
-  enemy2: "./img/enemy_ph2.png",
-  enemy3: "./img/enemy_ph3.png",
-  apple: "./img/apple_ph.png",
+  // Legacy placeholder keys retained as direct overrides; everything else
+  // is resolved by resolveFlightIconImage() below.
+  enemy1: "./img/legacy/enemy_ph1.png",
+  enemy2: "./img/legacy/enemy_ph2.png",
+  enemy3: "./img/legacy/enemy_ph3.png",
 });
+
+/**
+ * Resolves the grid icon image for a content key. For colored/colorless
+ * enemy keys like `red_5` it returns `./img/red_05.png` (zero-padded to
+ * match the file naming on disk).
+ */
+function resolveFlightIconImage(key) {
+  if (FLIGHT_ICON_IMAGE_BY_KEY[key]) return FLIGHT_ICON_IMAGE_BY_KEY[key];
+  const m = /^([a-z]+)_(\d+)$/.exec(key);
+  if (m) {
+    const padded = String(parseInt(m[2], 10)).padStart(2, "0");
+    return `./img/${m[1]}_${padded}.png`;
+  }
+  return null;
+}
 
 // ── Flight stack state ──────────────────────────────────────────────────────
 
@@ -115,7 +131,7 @@ function createGridCell(coordinate, content) {
   cell.style.alignItems = "center";
   cell.style.justifyContent = "center";
 
-  const imageSource = FLIGHT_ICON_IMAGE_BY_KEY[content];
+  const imageSource = resolveFlightIconImage(content);
   if (!imageSource) {
     cell.textContent = content;
     cell.style.fontSize = "1.5rem";
@@ -124,22 +140,21 @@ function createGridCell(coordinate, content) {
 
   const icon = document.createElement("img");
   icon.className = "grid-cell-icon";
-  if (content === "apple") icon.classList.add("grid-cell-icon-fit");
   icon.src = imageSource;
   icon.alt = "";
   icon.setAttribute("aria-hidden", "true");
   icon.loading = "lazy";
   cell.append(icon);
 
-  if (content !== "apple") {
-    const monster = (typeof getMonsterDefinition === "function")
-      ? getMonsterDefinition(content)
-      : null;
-    const circleBg = monster && MONSTER_BADGE_COLORS[monster.color]
+  const monster = (typeof getMonsterDefinition === "function")
+    ? getMonsterDefinition(content)
+    : null;
+  if (monster) {
+    const circleBg = MONSTER_BADGE_COLORS[monster.color]
       ? MONSTER_BADGE_COLORS[monster.color]
       : "#e5e7eb";
-    const powerText = monster ? String(monster.power) : "";
-    const defenseText = monster ? String(monster.defense) : "";
+    const powerText = String(monster.power);
+    const defenseText = String(monster.defense);
 
     const badges = document.createElement("div");
     badges.className = "grid-cell-badges";
@@ -157,6 +172,16 @@ function createGridCell(coordinate, content) {
       + `<span class="grid-cell-badge-number grid-cell-badge-number-shield">${defenseText}</span>`
       + '</span>';
     cell.append(badges);
+
+    if (monster.special) {
+      const special = document.createElement("img");
+      special.className = "grid-cell-special";
+      special.src = `./img/${monster.special}.png`;
+      special.alt = monster.special;
+      special.title = monster.special;
+      special.loading = "lazy";
+      cell.append(special);
+    }
   }
   return cell;
 }

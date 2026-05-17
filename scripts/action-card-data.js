@@ -179,9 +179,9 @@ const ACTION_CARD_ROWS = Object.freeze([
   // ── Colorless ───────────────────────────────────────────────────────────
   { id: "colorless_1", title: "Strike",         color: "colorless", cardNumber: 1, power: 1, resources: { attack: 2 } },
   { id: "colorless_2", title: "March",          color: "colorless", cardNumber: 2, power: 1, resources: { movement: 2 } },
-  { id: "colorless_4", title: "Focus",          color: "colorless", cardNumber: 4, power: 2, resources: { draw: 1 } },
-  { id: "colorless_5", title: "Recover",        color: "colorless", cardNumber: 5, power: 2, resources: { healing: 2 } },
-  { id: "colorless_6", title: "Swift Strike",   color: "colorless", cardNumber: 6, power: 3, resources: { attack: 2, movement: 1 } },
+  { id: "colorless_3", title: "Focus",          color: "colorless", cardNumber: 3, power: 2, resources: { draw: 1 } },
+  { id: "colorless_4", title: "Recover",        color: "colorless", cardNumber: 4, power: 2, resources: { healing: 2 } },
+  { id: "colorless_5", title: "Swift Strike",   color: "colorless", cardNumber: 5, power: 3, resources: { attack: 2, movement: 1 } },
 ]);
 
 /**

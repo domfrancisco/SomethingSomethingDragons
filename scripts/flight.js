@@ -201,6 +201,7 @@ function renderFlightGrid() {
       gridElement.replaceChildren();
       if (numberEl) numberEl.textContent = "";
       if (boomEl) boomEl.textContent = "";
+      container.style.background = "";
       return;
     }
 
@@ -224,6 +225,22 @@ function renderFlightGrid() {
 
     if (numberEl) numberEl.textContent = `#${cardData.cardNumber.toString().padStart(3, "0")}`;
     if (boomEl) boomEl.textContent = cardData.boomCount.toString().padStart(2, "0");
+    if (cardData.background) {
+      // Inline background URLs resolve relative to the page (not the
+      // stylesheet), so the path stays correct. The gradient is the
+      // FIRST layer so it draws ON TOP of the image. The image fills the
+      // card with `cover` underneath.
+      const gradient = "linear-gradient(135deg, rgba(60, 70, 79, 0.20) 0%, rgba(55, 64, 73, 0.20) 18%, rgba(177, 186, 195, 0.15) 26%, rgba(120, 129, 138, 0.15) 30%, rgba(76, 85, 94, 0.20) 48%, rgba(172, 181, 190, 0.15) 58%, rgba(120, 129, 138, 0.15) 66%, rgba(58, 67, 76, 0.25) 100%)";
+      container.style.backgroundImage = `${gradient}, url('${cardData.background}')`;
+      container.style.backgroundSize = "130% 130%, cover";
+      container.style.backgroundPosition = "12% 14%, center center";
+      container.style.backgroundRepeat = "no-repeat, no-repeat";
+    } else {
+      container.style.backgroundImage = "";
+      container.style.backgroundSize = "";
+      container.style.backgroundPosition = "";
+      container.style.backgroundRepeat = "";
+    }
   });
 }
 

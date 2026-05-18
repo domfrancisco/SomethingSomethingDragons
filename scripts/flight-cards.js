@@ -27,6 +27,7 @@ const FLIGHT_CARDS_DB = Object.freeze(
     id: card.id,
     cardNumber: card.cardNumber,
     boomCount: card.boomCount,
+    background: card.background || null,
     grid: createFlightGrid(card.entries),
   }))
 );
@@ -125,6 +126,7 @@ function createFlightDeck() {
       id: picked.id,
       cardNumber: picked.cardNumber,
       boomCount: picked.boomCount,
+      background: picked.background || null,
       grid: [...picked.grid],
     });
   }
